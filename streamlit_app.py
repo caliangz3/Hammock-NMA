@@ -384,7 +384,9 @@ if page == "Frequency-based plots":
             augmentation = st.radio("Need augmentation?",("Yes", "No"), index=1, key="augmentation_frequency")
             augmentation_threshold = 0
             if augmentation == "Yes":
-                augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.02,step = 0.01)
+                augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.02,step = 0.01,
+                                                         help="Range from 0 to 1. This ensures that the frequency of each selected " \
+                                                         "hierarchy is at least (threshold * 100)% of the original sample size.")
         
         rank_order = treatment_matrix.columns.tolist()
         chosen_metric = user_chosen_metric(treatment_order_metrics)
@@ -531,7 +533,9 @@ if page == "Metrics-based plots":
             augmentation = st.radio("Need augmentation?",("Yes", "No"), index=1, key="augmentation_metrics")
             augmentation_threshold = 0
             if augmentation == "Yes":
-                augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.02,step = 0.01)
+                augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.02,step = 0.01,
+                                                         help="Range from 0 to 1. This ensures that the frequency of each selected " \
+                                                         "hierarchy is at least (threshold * 100)% of the original sample size.")
 
 
         rank_order = treatment_matrix.columns.tolist()

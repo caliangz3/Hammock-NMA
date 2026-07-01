@@ -144,26 +144,30 @@ def MCMC_augmentation(treatment_matrix_metrics_hierarchy, sum_col, augmentation_
     return modified_treatment_matrix_metrics_hierarchy 
 
 
-def user_chosen_metric(option):
-    if option == "SUCRA/Mean rank":
-        return "SUCRA"
-    elif option == "EV":
-        return "EV"
-    elif option == "PBV":
-        return "PBV"
-    else:
-        return "Median"
-
-
-def order_treatments_by(key):
-    choice = st.radio("Order treatments by: ", options=("SUCRA/Mean rank", "EV", "PBV", "Median rank"),
+def selected_treatment_ordering(key):
+    choice = st.radio("Order treatments by: ", options=("SUCRA/Mean rank", "EV", "PBV", "Median rank", "Custom order"),
                       key = key,
                       help = "Order treatments from top to bottom when column names represent 'Rank', or from left to right when column names represent 'Treatment', using:\n"
                       "- SUCRA / Mean Rank: Surface under the cumulative ranking curve, or equivalently the mean of the treatment rank distribution\n" 
                       "- EV: Expected treatment effect\n"
                       "- PBV: Probability of being the best\n"
-                      "- Median Rank: Median of the treatment rank distribution")
-    return choice
+                      "- Median Rank: Median of the treatment rank distribution\n"
+                      "- Custom order: Manually specify your own treatment ordering")
+    all_rank = st.session_state["all_rank"]
+    if choice == "SUCRA/Mean rank":
+        return all_rank["SUCRA"]
+    elif choice == "EV":
+        return all_rank["EV"]
+    elif choice == "PBV":
+        return all_rank["PBV"]
+    elif choice == "Median rank":
+        return all_rank["Median"]
+    else:
+        selected_order = st.multiselect("Select treatments in the desired order", options=st.session_state["treatment_effect"].columns, 
+                                        help="Select all treatments in the desired order.",
+                                        key = key + "custom_order")
+        return selected_order
+
 
 
 def treatment_lebel_wrapping_matrices(rank_matrix, treatment_matrix, all_rank, row_length):
@@ -181,14 +185,14 @@ def treatment_lebel_wrapping_matrices(rank_matrix, treatment_matrix, all_rank, r
 ########################################
 # Default datasets
 ########################################
-dataset_info = {"Baker2009 (random-effects model)": "Baker WL, Baker EL, Coleman CI (2009): Pharmacologic Treatments for Chronic Obstructive Pulmonary Disease: A Mixed-Treatment Comparison Meta-analysis. Pharmacotherapy: The Journal of Human Pharmacology and Drug Therapy, 29, 891–905",
-                "Dogliotti2014 (random-effects model)": "Dogliotti A, Paolasso E, Giugliano RP (2014): Current and new oral antithrombotics in non-valvular atrial fibrillation: a network meta-analysis of 79 808 patients. Heart, 100, 396–405",
-                "Dong2013 (Mantel-Haenszel method)": "Dong Y-H, Lin H-H, Shau W-Y, Wu Y-C, Chang C-H, Lai M-S (2013): Comparative safety of inhaled medications in patients with chronic obstructive pulmonary disease: systematic review and mixed treatment comparison meta-analysis of randomised controlled trials. Thorax, 68, 48–56",
-                "Franchini2012 (fixed-effects model)": "Franchini AJ, Dias S, Ades AE, Jansen JP, Welton NJ (2012): Accounting for correlation in network meta-analysis with multi-arm trials. Research Synthesis Methods, 3, 142–60",
-                "Gurusamy2011 (fixed-effects model)": "Gurusamy KS, Pissanou T, Pikhart H, Vaughan J, Burroughs AK, Davidson BR (2011): Methods to decrease blood loss and transfusion requirements for liver transplantation. Cochrane Database of Systematic Reviews, CD009052",
-                "thrombolytic (random-effects model)": "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302] \nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]",
+dataset_info = {"Baker2009 (Bayesian random-effects model)": "Baker WL, Baker EL, Coleman CI (2009): Pharmacologic Treatments for Chronic Obstructive Pulmonary Disease: A Mixed-Treatment Comparison Meta-analysis. Pharmacotherapy: The Journal of Human Pharmacology and Drug Therapy, 29, 891–905",
+                "Dogliotti2014 (Bayesian random-effects model)": "Dogliotti A, Paolasso E, Giugliano RP (2014): Current and new oral antithrombotics in non-valvular atrial fibrillation: a network meta-analysis of 79 808 patients. Heart, 100, 396–405",
+                "Dong2013 (Frequentist Mantel-Haenszel method)": "Dong Y-H, Lin H-H, Shau W-Y, Wu Y-C, Chang C-H, Lai M-S (2013): Comparative safety of inhaled medications in patients with chronic obstructive pulmonary disease: systematic review and mixed treatment comparison meta-analysis of randomised controlled trials. Thorax, 68, 48–56",
+                "Franchini2012 (Bayesian fixed-effects model)": "Franchini AJ, Dias S, Ades AE, Jansen JP, Welton NJ (2012): Accounting for correlation in network meta-analysis with multi-arm trials. Research Synthesis Methods, 3, 142–60",
+                "Gurusamy2011 (Bayesian fixed-effects model)": "Gurusamy KS, Pissanou T, Pikhart H, Vaughan J, Burroughs AK, Davidson BR (2011): Methods to decrease blood loss and transfusion requirements for liver transplantation. Cochrane Database of Systematic Reviews, CD009052",
+                "thrombolytic (Bayesian random-effects model)": "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302] \n\nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]",
                 "sepsis (Frequentist fix-effects model)": "Rochwerg B, Alhazzani W, Sindi A, et al. (2014): Fluid resuscitation in sepsis: A systematic review and network meta-analysis. Annals of Internal Medicine, 161, 347–355.",
-                "cardiovascular (Frequentist ranndom-effects model)": "Fretheim A, Odgaard-Jensen J, Brørs O, et al. (2012): Comparative effectiveness of antihypertensive medication for primary prevention of cardiovascular disease: Systematic review and multiple treatments meta-analysis. BMC Medicine, 10, 33." 
+                "cardiovascular (Frequentist random-effects model)": "Fretheim A, Odgaard-Jensen J, Brørs O, et al. (2012): Comparative effectiveness of antihypertensive medication for primary prevention of cardiovascular disease: Systematic review and multiple treatments meta-analysis. BMC Medicine, 10, 33." 
                 }
 
 
@@ -208,16 +212,29 @@ if "small_values_good" not in st.session_state:
 if page == "Data upload":
     st.subheader("Choose a data source")
 
-    mode = st.radio("Data source",("Use an example dataset", "Upload my own treatment effects CSV file"), horizontal = True, 
-                    label_visibility = "collapsed")
+    mode = st.pills("",["Use an example dataset", "Upload my own treatment effects CSV file"], selection_mode="single", label_visibility = "collapsed")
 
-    default_dataset= pd.read_csv("treatment_effect.csv")
+    if mode == "Use an example dataset":
+        dataset_choice = st.radio("Available dataset:", dataset_info.keys(), horizontal = True)
+        index = dataset_choice.find(" ")
+        file_name = "Example_dataset/" + dataset_choice[:index] + "_treatment_effect.csv"
+        default_dataset= pd.read_csv(file_name)
 
-    use_default = st.button("Use netmeta-Baker2009 (random-effects model) treatment effects")
-    st.download_button(label="Download sample dataset", data=default_dataset.to_csv(index=False), 
-                       file_name="sample_treatment_effect.csv", mime="text/csv",
-                       on_click="ignore")
-    uploaded_file = st.file_uploader("Or upload your own treatment effects CSV file", type = ["csv"])
+        st.caption(dataset_info[dataset_choice])
+        st.download_button(label="Download sample dataset", data=default_dataset.to_csv(index=False), 
+                           file_name="sample_treatment_effect.csv", mime="text/csv",
+                           on_click="ignore")
+        st.session_state["treatment_effect"] = default_dataset.copy()
+        st.success("Dataset uploaded successfully.")
+
+    elif mode == "Upload my own treatment effects CSV file":
+        uploaded_file = st.file_uploader("", type = ["csv"], label_visibility = "collapsed")
+        if uploaded_file is not None:
+        # warning when upload file size > 10MB
+            if uploaded_file.size > 10 * 1024 * 1024:
+                st.warning("File size is greater than 10MB, data processing and plots generation will be slow.")
+            st.session_state["treatment_effect"] = pd.read_csv(uploaded_file)
+            st.success("Dataset uploaded successfully.")
 
     # matrices setup
     small_values_good_choice = st.radio(
@@ -225,23 +242,11 @@ if page == "Data upload":
         ("True", "False"),
         help="Choose 'True' when smaller treatment effects are more desirable, otherwise choose 'False'."
     )
-
-    if use_default:
-        st.session_state["treatment_effect"] = default_dataset.copy()
-        st.success("Dataset uploaded successfully.")
-    elif uploaded_file is not None:
-        # warning when upload file size > 10MB
-        if uploaded_file.size > 10 * 1024 * 1024:
-            st.warning("File size is greater than 10MB, data processing and plots generation will be slow.")
-        st.session_state["treatment_effect"] = pd.read_csv(uploaded_file)
-        st.success("Dataset uploaded successfully.")
-
+    
+    st.session_state["small_values_good"] = (small_values_good_choice == "True")
 
     if st.session_state["treatment_effect"] is not None:
         st.dataframe(st.session_state["treatment_effect"], use_container_width=True)
-
-
-    st.session_state["small_values_good"] = (small_values_good_choice == "True")
 
     if st.session_state["treatment_effect"] is not None:
         treatment_effect = st.session_state["treatment_effect"].copy()
@@ -314,7 +319,7 @@ if page == "Snapshot & Simple hammock plots":
             st.subheader("Snapshot plot settings")
 
             snapshot_axis = st.radio("Column names represent: ",("Rank", "Treatment"), key = "snapshot_axis")
-            treatment_order_metrics = order_treatments_by(key = "snapshot_treatment_order")
+            chosen_metric_order = selected_treatment_ordering(key = "snapshot_treatment_order")
             fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
             fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=15.0, step = 0.5)
             color = st.color_picker("Figure Color",value="#beaed4") ##87CEEB
@@ -340,8 +345,9 @@ if page == "Snapshot & Simple hammock plots":
                                                                                             row_length = row_length)
                 
                 #p_best_treatment_order = all_rank["PBV"].tolist()
-                chosen_metric = user_chosen_metric(treatment_order_metrics)
-                treatment_order = all_rank[chosen_metric].tolist()
+                #chosen_metric = user_chosen_metric(treatment_order_metrics)
+                treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
+                
                 rank_order = treatment_matrix.columns.tolist()
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
                 value_order_simple_rank = {t: rank_order[::-1] for t in treatment_order}
@@ -369,7 +375,7 @@ if page == "Snapshot & Simple hammock plots":
             st.subheader("Hammock plot setting")
             
             axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "simple_axis")
-            treatment_order_metrics = order_treatments_by(key = "simple_treatment_order")
+            chosen_metric_order = selected_treatment_ordering(key = "simple_treatment_order")
             Hfig_width = st.number_input("Hammock plot width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
             Hfig_height = st.number_input("Hammock plot height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
             Hcolor = st.color_picker("Hammock plot color",value="#beaed4") #87CEEB
@@ -389,8 +395,9 @@ if page == "Snapshot & Simple hammock plots":
                                                                                             all_rank = st.session_state["all_rank"].copy(),
                                                                                             row_length = row_length)
 
-                chosen_metric = user_chosen_metric(treatment_order_metrics)
-                treatment_order = all_rank[chosen_metric].tolist()
+                #chosen_metric = user_chosen_metric(treatment_order_metrics)
+                #treatment_order = all_rank[chosen_metric].tolist()
+                treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
                 value_order_simple_rank = {t: rank_order[::-1] for t in treatment_order}
 
@@ -436,7 +443,7 @@ if page == "Frequency-based plots":
             st.subheader("Setting")
 
             axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "frequency_axis")
-            treatment_order_metrics = order_treatments_by(key = "frequency_metrics")
+            chosen_metric_order = selected_treatment_ordering(key = "frequency_metrics")
             top_fre = st.number_input("Number of most frequent hierarchies to display",
                                       min_value = 1, max_value=100, value=5)
             highlight_top = st.number_input("Number of displayed hierarchies to highlight",
@@ -471,8 +478,9 @@ if page == "Frequency-based plots":
                                                                                             row_length = row_length)
 
                 rank_order = treatment_matrix.columns.tolist()
-                chosen_metric = user_chosen_metric(treatment_order_metrics)
-                treatment_order = all_rank[chosen_metric].tolist()
+                #chosen_metric = user_chosen_metric(treatment_order_metrics)
+                #treatment_order = all_rank[chosen_metric].tolist()
+                treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
                 #value_order_simple_rank = {t: rank_order[::-1] for t in treatment_order}
 
@@ -604,7 +612,7 @@ if page == "Metrics-based plots":
             with setting_col:
                 st.subheader("Setting")
 
-                treatment_order_metrics = order_treatments_by(key = "metric_metrics")
+                chosen_metric_order = selected_treatment_ordering(key = "metric_metrics")
                 default_color = st.color_picker("Default Color",value="#D9D9D9")
                 hi_color = choose_hi_color(highlight_num)
                 fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
@@ -624,9 +632,9 @@ if page == "Metrics-based plots":
             rank_order = treatment_matrix.columns.tolist()
             #p_best_treatment_order = st.session_state["all_rank"]["PBV"].tolist()
             #value_order_simple_treatment = {k:p_best_treatment_order[::-1] for k in rank_order}
-            chosen_metric = user_chosen_metric(treatment_order_metrics)
-            treatment_order = all_rank[chosen_metric].tolist()
-            treatment_order = to_multiline_names(treatment_order, row_length)
+            #chosen_metric = user_chosen_metric(treatment_order_metrics)
+            #treatment_order = all_rank[chosen_metric].tolist()
+            treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
             value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
 
             with graph_col:
@@ -696,7 +704,7 @@ if page == "Top-k plots":
                 st.subheader("Setting")
 
                 axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "top_k_axis")
-                treatment_order_metrics = order_treatments_by(key = "topk_metrics")
+                chosen_metric_order = selected_treatment_ordering(key = "topk_metrics")
                 top_k = st.number_input("Choose k",min_value = 1,max_value=all_rank.shape[0],value=3)
                 row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
                                          help="Treatment names longer than this number of characters will wrap onto multiple lines",
@@ -709,9 +717,10 @@ if page == "Top-k plots":
                                                                                             all_rank = st.session_state["all_rank"].copy(),
                                                                                             row_length = row_length)
 
-            chosen_metric = user_chosen_metric(treatment_order_metrics)
-            treatment_order = all_rank[chosen_metric].tolist()
+            #chosen_metric = user_chosen_metric(treatment_order_metrics)
+            #treatment_order = all_rank[chosen_metric].tolist()
             #p_best_treatment_order = st.session_state["all_rank"]["PBV"].tolist()
+            treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
             rank_order = treatment_matrix.columns.tolist()
 
 

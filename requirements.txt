@@ -1,4 +1,4 @@
 streamlit
 pandas
 numpy
-hammock_plot
+git+https://github.com/TianchengY/hammock_plot.git

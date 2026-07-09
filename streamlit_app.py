@@ -11,11 +11,11 @@ st.set_page_config(
 
 st.title("Hammock Plots for Network Meta-Analysis (NMA)")
 
-st.markdown(
-    """
-    Any description?
-    """
-)
+#st.markdown(
+#    """
+#    Any description?
+#    """
+#)
 
 page = st.sidebar.radio(
     "",
@@ -23,7 +23,7 @@ page = st.sidebar.radio(
     "Snapshot & Simple hammock plots",
     "Frequency-based plots",
     "Metrics-based plots",
-    "Top-k plots",
+    "Top-k metrics-based plots",
     "Partial ordering plots")
 )
 
@@ -82,7 +82,8 @@ def to_multiline_names(names, row_length):
 
 def plot_hammock(data_df, var, value_order, **kwargs):
     hammock = hammock_plot.Hammock(data_df=data_df)
-    ax = hammock.plot(var=var, value_order=value_order, **kwargs)
+    ax = hammock.plot(var=var, value_order=value_order, min_bar_height_connectors=0,
+                      **kwargs)
     return ax
 
 def show_hammock(ax, key, filename = "my_plot.png"):
@@ -180,6 +181,30 @@ def treatment_lebel_wrapping_matrices(rank_matrix, treatment_matrix, all_rank, r
 
 
 
+def plot_general_settng(key, need_row_length):
+
+    font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5,
+                                key = key+"_font")
+    if need_row_length:
+        row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
+                                    help="Treatment names longer than this number of characters will wrap onto multiple lines",
+                                    key=key+"_rowLength")
+    if key == "snapshot" or key == "simple_hammock":
+        fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5,
+                                    key = key + "_width")
+    else:
+        fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5,
+                                    key = key + "_width")
+    if key == "snapshot":
+        fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=15.0, step = 0.5,
+                                    key = key + "_height")
+    else:
+        fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5,
+                                    key = key + "_height")
+    if need_row_length:
+        return font_size, row_length, fig_width, fig_height
+    else:
+        return font_size, fig_width, fig_height
 
 
 ########################################
@@ -317,16 +342,16 @@ if page == "Snapshot & Simple hammock plots":
 
         with setting_col:
             st.subheader("Snapshot plot settings")
-
             snapshot_axis = st.radio("Column names represent: ",("Rank", "Treatment"), key = "snapshot_axis")
             chosen_metric_order = selected_treatment_ordering(key = "snapshot_treatment_order")
-            fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
-            fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=15.0, step = 0.5)
+            #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
+            #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=15.0, step = 0.5)
+            font_size, row_length, fig_width, fig_height = plot_general_settng("snapshot", need_row_length=True)
             color = st.color_picker("Figure Color",value="#beaed4") ##87CEEB
-            font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=8.5,step = 0.5)
-            row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                                         key="snapshot_rowlength")
+            #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=8.5,step = 0.5)
+            #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
+            #                             help="Treatment names longer than this number of characters will wrap onto multiple lines",
+            #                             key="snapshot_rowlength")
             snapshot_uni_vfill = st.slider("Univariate bar vertical fill",min_value = 0.0,max_value=1.0,value=0.9,step = 0.01,
                                            help = "Fraction of vertical space that should be populated by data. Adjusts the height of the data points")
             snapshot_uni_hfill = st.slider("Univariate bar horizontal fill",min_value = 0.0, max_value=1.0,value=0.85,step = 0.01,
@@ -335,6 +360,8 @@ if page == "Snapshot & Simple hammock plots":
 
         with graph_col:
             st.subheader("Snapshot Plot")
+            with st.expander("Description (Click to expand):"):
+                st.write(".....")
 
             with st.spinner("Processing data and generating plot..."):
                 
@@ -367,7 +394,6 @@ if page == "Snapshot & Simple hammock plots":
                                                     width = fig_width, height = fig_height)
                     show_hammock(ax_snapshot_rank, key="snapshot_rank_download")
 
-
         st.divider()
         graph_col2, setting_col2 = st.columns([2, 1])
         
@@ -376,16 +402,19 @@ if page == "Snapshot & Simple hammock plots":
             
             axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "simple_axis")
             chosen_metric_order = selected_treatment_ordering(key = "simple_treatment_order")
-            Hfig_width = st.number_input("Hammock plot width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
-            Hfig_height = st.number_input("Hammock plot height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
+            #Hfig_width = st.number_input("Hammock plot width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
+            #Hfig_height = st.number_input("Hammock plot height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
+            Hfont_size, row_length, Hfig_width, Hfig_height = plot_general_settng(key = "simple_hammock", need_row_length=True)
             Hcolor = st.color_picker("Hammock plot color",value="#beaed4") #87CEEB
-            Hfont_size = st.number_input("Hammock plot font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
-            row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                                         key="simple_hammock_rowlength")
+            #Hfont_size = st.number_input("Hammock plot font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
+            #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
+            #                             help="Treatment names longer than this number of characters will wrap onto multiple lines",
+            #                             key="simple_hammock_rowlength")
 
         with graph_col2:
             st.subheader("Hammock plot")
+            with st.expander("Description (Click to expand):"):
+                st.write(".....")
 
             with st.spinner("Processing data and generating plot..."):
 
@@ -452,12 +481,13 @@ if page == "Frequency-based plots":
                                             help = "The most probable k hierarchies will be highlighted using distinct colors")
             default_color = st.color_picker("Default Color",value="#D9D9D9")
             hi_color = choose_hi_color(highlight_top)
-            fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-            fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-            font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
-            row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                                         key="Frequency-based_rowlength")
+            #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
+            #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
+            #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
+            #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
+            #                             help="Treatment names longer than this number of characters will wrap onto multiple lines",
+            #                             key="Frequency-based_rowlength")
+            font_size, row_length, fig_width, fig_height = plot_general_settng("Frequency-based", need_row_length=True)
             augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_frequency")
             augmentation_threshold = 0
             if augmentation == "Yes":
@@ -469,6 +499,8 @@ if page == "Frequency-based plots":
         with graph_col:
             
             st.subheader("Highlighting Frequent Paths")
+            with st.expander("Description (Click to expand):"):
+                st.write(".....")
             
             with st.spinner("Processing data and generating plot..."):
 
@@ -615,12 +647,13 @@ if page == "Metrics-based plots":
                 chosen_metric_order = selected_treatment_ordering(key = "metric_metrics")
                 default_color = st.color_picker("Default Color",value="#D9D9D9")
                 hi_color = choose_hi_color(highlight_num)
-                fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-                fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-                font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
-                row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                                         key="metrics-based_rowlength")
+                font_size, row_length, fig_width, fig_height = plot_general_settng("Frequency-based", need_row_length=True)
+                #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
+                #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
+                #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
+                #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
+                #                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
+                #                         key="metrics-based_rowlength")
                 augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_metrics")
                 augmentation_threshold = 0
                 if augmentation == "Yes":
@@ -640,6 +673,8 @@ if page == "Metrics-based plots":
             with graph_col:
                 
                 st.subheader("Highlighting Paths from Different Ranking Metrics")
+                with st.expander("Description (Click to expand):"):
+                    st.write(".....")
 
                 rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                             treatment_matrix = st.session_state["treatment_matrix"].copy(), 
@@ -687,7 +722,7 @@ if page == "Metrics-based plots":
 ####################################################
 #5. Top k
 ####################################################
-if page == "Top-k plots":
+if page == "Top-k metrics-based plots":
     if st.session_state["treatment_effect"] is None:
         st.info("Please use the default dataset or upload a CSV file.")
     else:
@@ -713,9 +748,9 @@ if page == "Top-k plots":
             
 
             rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
-                                                                                            treatment_matrix = st.session_state["treatment_matrix"].copy(), 
-                                                                                            all_rank = st.session_state["all_rank"].copy(),
-                                                                                            row_length = row_length)
+                                                                                        treatment_matrix = st.session_state["treatment_matrix"].copy(), 
+                                                                                        all_rank = st.session_state["all_rank"].copy(),
+                                                                                        row_length = row_length)
 
             #chosen_metric = user_chosen_metric(treatment_order_metrics)
             #treatment_order = all_rank[chosen_metric].tolist()
@@ -771,13 +806,16 @@ if page == "Top-k plots":
 
             with setting_col:
                 hi_color = choose_hi_color(highlight_num)
-                fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-                fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-                font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
+                font_size, fig_width, fig_height = plot_general_settng(key = "topk", need_row_length=False)
+                #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
+                #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
+                #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
 
 
             with graph_col:
-                st.subheader("Subsetting Based on Top-k Treatment Hierarchies")
+                st.subheader("Subsetting Based on the Top-k Treatments in Metric-Based Hierarchies")
+                with st.expander("Description (Click to expand):"):
+                    st.write(".....")
                 
                 if axis == "Rank":
                     label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
@@ -840,6 +878,12 @@ if page == "Partial ordering plots":
         with st.spinner("Processing data and generating plot..."):
 
             graph_col, setting_col = st.columns([2, 1])
+
+            with graph_col:
+                    st.subheader("Partial ordering of treatments")
+                    with st.expander("Description (Click to expand):"):
+                        st.write(".....")
+        
             with setting_col:
                 st.subheader("Setting")
                 treatment_subset = st.multiselect("Choose a subset of treatments to display in order:", options = all_treatment)
@@ -907,12 +951,12 @@ if page == "Partial ordering plots":
                 with setting_col:
                     default_color = st.color_picker("Default Color",value="#D9D9D9")
                     hi_color = choose_hi_color(highlight_num)
-                    fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-                    fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-                    font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.01)
+                    font_size, fig_width, fig_height = plot_general_settng(key = "partial_ordering", need_row_length=False)
+                    #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
+                    #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
+                    #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.01)
 
                 with graph_col:
-                    st.subheader("Partial ordering of treatments")
 
                     #wrapped_names = dict(zip(rank_matrix.columns,to_multiline_names(rank_matrix, row_length)))
                     #sub_treatment_matrix = sub_treatment_matrix.replace(wrapped_names)

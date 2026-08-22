@@ -228,7 +228,7 @@ dataset_info = {"Baker2009 (Bayesian random-effects model)": "Baker WL, Baker EL
                 "Gurusamy2011 (Bayesian fixed-effects model)": "Gurusamy KS, Pissanou T, Pikhart H, Vaughan J, Burroughs AK, Davidson BR (2011): Methods to decrease blood loss and transfusion requirements for liver transplantation. Cochrane Database of Systematic Reviews, CD009052",
                 "Boland2003 (Bayesian random-effects model)": "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302] \n\nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]",
                 "Rochwerg2014 (Frequentist fix-effects model)": "Rochwerg B, Alhazzani W, Sindi A, et al. (2014): Fluid resuscitation in sepsis: A systematic review and network meta-analysis. Annals of Internal Medicine, 161, 347–355.",
-                "cardiovascular (Frequentist random-effects model)": "Fretheim A, Odgaard-Jensen J, Brørs O, et al. (2012): Comparative effectiveness of antihypertensive medication for primary prevention of cardiovascular disease: Systematic review and multiple treatments meta-analysis. BMC Medicine, 10, 33." 
+                "Fretheim2012 (Frequentist random-effects model)": "Fretheim A, Odgaard-Jensen J, Brørs O, et al. (2012): Comparative effectiveness of antihypertensive medication for primary prevention of cardiovascular disease: Systematic review and multiple treatments meta-analysis. BMC Medicine, 10, 33." 
                 }
 
 

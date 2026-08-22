@@ -9,8 +9,6 @@ st.set_page_config(
     layout = "wide"
 )
 
-st.title("Hammock Plots for Network Meta-Analysis (NMA)")
-
 #st.markdown(
 #    """
 #    Any description?
@@ -64,25 +62,32 @@ def get_matrices(treatment_effect, small_values_good):
 
 
 
-def to_multiline_names(names, row_length):
+def to_multiline_names(names, wrap_mode, row_length):
     '''
-    Returns a list of modified name from names such that the length of each line of each element in names is no longer than row_length
+    Returns a list of modified name from names such that the length of each line of each element in names is no longer than row_length,
+    wrap_mode no equals to No wrapping
 
     to_multipleline_names: List Nat -> List
     '''
+    if wrap_mode == "No wrapping":
+        return list(names)
     new_names = []
-
-    for name in names:
-        if len(name) > row_length:
-            chunks = [name[i:i+row_length] for i in range(0, len(name), row_length)]
-            name = "\n".join(chunks)
-        new_names.append(name)
-    
+    if wrap_mode == "Wrap at spaces":
+        for name in names:
+            new_names.append(name.replace(" ", "\n"))
+    else:
+        for name in names:
+            if len(name) > row_length:
+                chunks = [name[i:i+row_length] for i in range(0, len(name), row_length)]
+                name = "\n".join(chunks)
+            new_names.append(name)
     return new_names
+
 
 def plot_hammock(data_df, var, value_order, **kwargs):
     hammock = hammock_plot.Hammock(data_df=data_df)
-    ax = hammock.plot(var=var, value_order=value_order, min_bar_height_connectors=0,
+    ax = hammock.plot(var=var, value_order=value_order, 
+                      min_bar_height_connectors = 0,
                       **kwargs)
     return ax
 
@@ -171,21 +176,27 @@ def selected_treatment_ordering(key):
 
 
 
-def treatment_lebel_wrapping_matrices(rank_matrix, treatment_matrix, all_rank, row_length):
-    wrapped_names = dict(zip(rank_matrix.columns,to_multiline_names(rank_matrix, row_length)))
+def treatment_lebel_wrapping_matrices(rank_matrix, treatment_matrix, all_rank, wrap_mode, row_length):
+    if wrap_mode == "No wrapping":
+        return rank_matrix, treatment_matrix, all_rank
+    wrapped_names = dict(zip(rank_matrix.columns,to_multiline_names(rank_matrix, wrap_mode, row_length)))
     treatment_matrix = treatment_matrix.replace(wrapped_names)
     all_rank = all_rank.replace(wrapped_names)
-    rank_matrix.columns = to_multiline_names(rank_matrix.columns, row_length)
+    rank_matrix.columns = to_multiline_names(rank_matrix.columns, wrap_mode, row_length)
 
     return rank_matrix, treatment_matrix, all_rank
 
 
 
-def plot_general_settng(key, need_row_length):
+def plot_general_settng(key):
 
     font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5,
                                 key = key+"_font")
-    if need_row_length:
+    wrap_mode = st.radio("Treatment Label Wrapping", ("No wrapping","Wrap at spaces", "Fixed character length"),
+                            horizontal=True, key = key+"_wrap_mode",
+                            help = "For treatment names displayed on the plot, choose no wrapping, wrapping at every space, or wrapping after a fixed number of characters. " \
+                            "Wrapping helps to break long treatment names into multiple lines")
+    if wrap_mode == "Fixed character length":
         row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
                                     help="Treatment names longer than this number of characters will wrap onto multiple lines",
                                     key=key+"_rowLength")
@@ -201,10 +212,10 @@ def plot_general_settng(key, need_row_length):
     else:
         fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5,
                                     key = key + "_height")
-    if need_row_length:
-        return font_size, row_length, fig_width, fig_height
+    if wrap_mode == "Fixed character length":
+        return font_size, wrap_mode, row_length, fig_width, fig_height
     else:
-        return font_size, fig_width, fig_height
+        return font_size, wrap_mode, None, fig_width, fig_height
 
 
 ########################################
@@ -235,6 +246,8 @@ if "small_values_good" not in st.session_state:
     st.session_state["small_values_good"] = None
 
 if page == "Data upload":
+    st.title("Hammock Plots for Network Meta-Analysis (NMA)")
+
     st.subheader("Choose a data source")
 
     mode = st.pills("",["Use an example dataset", "Upload my own treatment effects CSV file"], selection_mode="single", label_visibility = "collapsed")
@@ -258,7 +271,9 @@ if page == "Data upload":
         # warning when upload file size > 10MB
             if uploaded_file.size > 10 * 1024 * 1024:
                 st.warning("File size is greater than 10MB, data processing and plots generation will be slow.")
-            st.session_state["treatment_effect"] = pd.read_csv(uploaded_file)
+            data = pd.read_csv(uploaded_file)
+            #data.columns = data.columns.str.replace("\r", "", regex=False)
+            st.session_state["treatment_effect"] = data
             st.success("Dataset uploaded successfully.")
 
     # matrices setup
@@ -315,7 +330,7 @@ if page == "Data upload":
         st.session_state["all_rank"] = all_rank
         st.info("Data processed successfully")
     else:
-        st.info("Please use the default dataset or upload a CSV file.")
+        st.info("Please use **an example** dataset or upload a CSV file.")
 
 
 
@@ -325,6 +340,8 @@ if page == "Data upload":
 # 2. Snap shot & simple version treatment plot
 ####################################################
 if page == "Snapshot & Simple hammock plots":
+
+    st.title("Hammock Plots for NMA")
 
     if st.session_state["treatment_effect"] is not None:
 
@@ -346,7 +363,7 @@ if page == "Snapshot & Simple hammock plots":
             chosen_metric_order = selected_treatment_ordering(key = "snapshot_treatment_order")
             #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
             #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=15.0, step = 0.5)
-            font_size, row_length, fig_width, fig_height = plot_general_settng("snapshot", need_row_length=True)
+            font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng("snapshot")
             color = st.color_picker("Figure Color",value="#beaed4") ##87CEEB
             #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=8.5,step = 0.5)
             #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
@@ -369,11 +386,12 @@ if page == "Snapshot & Simple hammock plots":
                 rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                             treatment_matrix = st.session_state["treatment_matrix"].copy(), 
                                                                                             all_rank = st.session_state["all_rank"].copy(),
+                                                                                            wrap_mode= wrap_mode,
                                                                                             row_length = row_length)
                 
                 #p_best_treatment_order = all_rank["PBV"].tolist()
                 #chosen_metric = user_chosen_metric(treatment_order_metrics)
-                treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
+                treatment_order = to_multiline_names(chosen_metric_order, wrap_mode, row_length)
                 
                 rank_order = treatment_matrix.columns.tolist()
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
@@ -396,6 +414,7 @@ if page == "Snapshot & Simple hammock plots":
 
         st.divider()
         graph_col2, setting_col2 = st.columns([2, 1])
+
         
         with setting_col2:
             st.subheader("Hammock plot setting")
@@ -404,7 +423,7 @@ if page == "Snapshot & Simple hammock plots":
             chosen_metric_order = selected_treatment_ordering(key = "simple_treatment_order")
             #Hfig_width = st.number_input("Hammock plot width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
             #Hfig_height = st.number_input("Hammock plot height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-            Hfont_size, row_length, Hfig_width, Hfig_height = plot_general_settng(key = "simple_hammock", need_row_length=True)
+            Hfont_size, wrap_mode, row_length, Hfig_width, Hfig_height = plot_general_settng(key = "simple_hammock")
             Hcolor = st.color_picker("Hammock plot color",value="#beaed4") #87CEEB
             #Hfont_size = st.number_input("Hammock plot font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
             #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
@@ -422,11 +441,12 @@ if page == "Snapshot & Simple hammock plots":
                 rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                             treatment_matrix = st.session_state["treatment_matrix"].copy(), 
                                                                                             all_rank = st.session_state["all_rank"].copy(),
+                                                                                            wrap_mode = wrap_mode,
                                                                                             row_length = row_length)
 
                 #chosen_metric = user_chosen_metric(treatment_order_metrics)
                 #treatment_order = all_rank[chosen_metric].tolist()
-                treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
+                treatment_order = to_multiline_names(chosen_metric_order, wrap_mode, row_length)
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
                 value_order_simple_rank = {t: rank_order[::-1] for t in treatment_order}
 
@@ -445,7 +465,7 @@ if page == "Snapshot & Simple hammock plots":
                     show_hammock(ax_simple_rank, key="simpleRreatment_download")
 
     else:
-        st.info("Please use the default dataset or upload a CSV file.")
+        st.info("Please use **an example** dataset or upload a CSV file.")
 
 
 
@@ -455,8 +475,11 @@ if page == "Snapshot & Simple hammock plots":
 # 3. Frequency-based plots
 ####################################################
 if page == "Frequency-based plots":
+
+    st.title("Hammock Plots for NMA")
+
     if st.session_state["treatment_effect"] is None:
-        st.info("Please use the default dataset or upload a CSV file.")
+        st.info("Please use **an example** dataset or upload a CSV file.")
     else:
         #rank_matrix = st.session_state["rank_matrix"]
         #treatment_matrix = st.session_state["treatment_matrix"]
@@ -487,7 +510,7 @@ if page == "Frequency-based plots":
             #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
             #                             help="Treatment names longer than this number of characters will wrap onto multiple lines",
             #                             key="Frequency-based_rowlength")
-            font_size, row_length, fig_width, fig_height = plot_general_settng("Frequency-based", need_row_length=True)
+            font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng("Frequency-based")
             augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_frequency")
             augmentation_threshold = 0
             if augmentation == "Yes":
@@ -507,12 +530,13 @@ if page == "Frequency-based plots":
                 rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                             treatment_matrix = st.session_state["treatment_matrix"].copy(), 
                                                                                             all_rank = st.session_state["all_rank"].copy(),
+                                                                                            wrap_mode = wrap_mode,
                                                                                             row_length = row_length)
 
                 rank_order = treatment_matrix.columns.tolist()
                 #chosen_metric = user_chosen_metric(treatment_order_metrics)
                 #treatment_order = all_rank[chosen_metric].tolist()
-                treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
+                treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
                 #value_order_simple_rank = {t: rank_order[::-1] for t in treatment_order}
 
@@ -595,13 +619,15 @@ if page == "Frequency-based plots":
 
 
 
-
 ####################################################
 #4. Metrics-based plots
 ####################################################
 if page == "Metrics-based plots":
+
+    st.title("Hammock Plots for NMA")
+
     if st.session_state["treatment_effect"] is None:
-        st.info("Please use the default dataset or upload a CSV file.")
+        st.info("Please use **an example** dataset or upload a CSV file.")
     else:
         
         with st.spinner("Processing data and generating plot..."):
@@ -647,7 +673,7 @@ if page == "Metrics-based plots":
                 chosen_metric_order = selected_treatment_ordering(key = "metric_metrics")
                 default_color = st.color_picker("Default Color",value="#D9D9D9")
                 hi_color = choose_hi_color(highlight_num)
-                font_size, row_length, fig_width, fig_height = plot_general_settng("Frequency-based", need_row_length=True)
+                font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng("Frequency-based")
                 #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
                 #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
                 #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
@@ -667,7 +693,7 @@ if page == "Metrics-based plots":
             #value_order_simple_treatment = {k:p_best_treatment_order[::-1] for k in rank_order}
             #chosen_metric = user_chosen_metric(treatment_order_metrics)
             #treatment_order = all_rank[chosen_metric].tolist()
-            treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
+            treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
             value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
 
             with graph_col:
@@ -679,6 +705,7 @@ if page == "Metrics-based plots":
                 rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                             treatment_matrix = st.session_state["treatment_matrix"].copy(), 
                                                                                             all_rank = st.session_state["all_rank"].copy(),
+                                                                                            wrap_mode = wrap_mode,
                                                                                             row_length = row_length)
                 treatment_matrix_metrics_hierarchy = treatment_matrix.assign(Metrics=metrics_hierarchy)
                 
@@ -716,15 +743,20 @@ if page == "Metrics-based plots":
                                                                 label_options = label_option_metrics_treatment,
                                                                 width=fig_width, height = fig_height)
                     show_hammock(ax_modified_metrics_treatment, key="metrics_treatment_modified_download")
-            
+
+
+
 
 
 ####################################################
 #5. Top k
 ####################################################
 if page == "Top-k metrics-based plots":
+
+    st.title("Hammock Plots for NMA")
+
     if st.session_state["treatment_effect"] is None:
-        st.info("Please use the default dataset or upload a CSV file.")
+        st.info("Please use **an example** dataset or upload a CSV file.")
     else:
 
         with st.spinner("Processing data and generating plot..."):
@@ -741,21 +773,23 @@ if page == "Top-k metrics-based plots":
                 axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "top_k_axis")
                 chosen_metric_order = selected_treatment_ordering(key = "topk_metrics")
                 top_k = st.number_input("Choose k",min_value = 1,max_value=all_rank.shape[0],value=3)
-                row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                                         key="topk_rowlength")
+                font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng(key = "topk")
+                #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
+                #                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
+                #                         key="topk_rowlength")
                 default_color = st.color_picker("Default Color",value="#D9D9D9")
             
 
             rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                         treatment_matrix = st.session_state["treatment_matrix"].copy(), 
                                                                                         all_rank = st.session_state["all_rank"].copy(),
+                                                                                        wrap_mode = wrap_mode,
                                                                                         row_length = row_length)
 
             #chosen_metric = user_chosen_metric(treatment_order_metrics)
             #treatment_order = all_rank[chosen_metric].tolist()
             #p_best_treatment_order = st.session_state["all_rank"]["PBV"].tolist()
-            treatment_order = to_multiline_names(chosen_metric_order, row_length=row_length)
+            treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
             rank_order = treatment_matrix.columns.tolist()
 
 
@@ -806,7 +840,6 @@ if page == "Top-k metrics-based plots":
 
             with setting_col:
                 hi_color = choose_hi_color(highlight_num)
-                font_size, fig_width, fig_height = plot_general_settng(key = "topk", need_row_length=False)
                 #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
                 #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
                 #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
@@ -862,8 +895,11 @@ if page == "Top-k metrics-based plots":
 #6. Subordering
 ####################################################
 if page == "Partial ordering plots":
+
+    st.title("Hammock Plots for NMA")
+
     if st.session_state["treatment_effect"] is None:
-        st.info("Please use the default dataset or upload a CSV file.")
+        st.info("Please use **an example** dataset or upload a CSV file.")
     else:
         treatment_effect = st.session_state["treatment_effect"]
         #all_rank = st.session_state["all_rank"]
@@ -887,17 +923,19 @@ if page == "Partial ordering plots":
             with setting_col:
                 st.subheader("Setting")
                 treatment_subset = st.multiselect("Choose a subset of treatments to display in order:", options = all_treatment)
-                row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                                            help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                                            key="topk_rowlength")
+                font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng(key = "partial_ordering")
+                #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
+                #                            help="Treatment names longer than this number of characters will wrap onto multiple lines",
+                #                            key="topk_rowlength")
             if treatment_subset != []:
                 
                 rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                             treatment_matrix = st.session_state["treatment_matrix"].copy(), 
                                                                                             all_rank = st.session_state["all_rank"].copy(),
+                                                                                            wrap_mode = wrap_mode,
                                                                                             row_length = row_length)
                 sub_treatmenet_effect = treatment_effect[treatment_subset]
-                sub_treatmenet_effect.columns = to_multiline_names(sub_treatmenet_effect.columns, row_length)
+                sub_treatmenet_effect.columns = to_multiline_names(sub_treatmenet_effect.columns, wrap_mode = wrap_mode, row_length = row_length)
                 small_values_good = st.session_state["small_values_good"]
 
                 if small_values_good:
@@ -951,7 +989,6 @@ if page == "Partial ordering plots":
                 with setting_col:
                     default_color = st.color_picker("Default Color",value="#D9D9D9")
                     hi_color = choose_hi_color(highlight_num)
-                    font_size, fig_width, fig_height = plot_general_settng(key = "partial_ordering", need_row_length=False)
                     #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
                     #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
                     #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.01)
@@ -978,8 +1015,5 @@ if page == "Partial ordering plots":
                                                                 colors=hi_color[::-1],same_scale=var_subset[1:],
                                                                 label_options = label_option_metrics_treatment,
                                                                 width=fig_width, height = fig_height)
+                                                                #min_bar_height_connectors = 0.2)
                     show_hammock(ax_partial_ordering, key="partial_ordering_download")
-
-
-        
-        

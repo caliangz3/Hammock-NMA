@@ -257,7 +257,9 @@ if page == "Data upload":
 
     if mode == "Use an example dataset":
         #dataset_choice = st.radio("Available dataset:", dataset_info.keys(), horizontal = True)
-        dataset_choice = st.radio("Available dataset:", options=list(dataset_info), format_func=lambda x: f"**{x}**" if x in featured else x, 
+        dataset_choice = st.radio("Available dataset:", options=list(dataset_info), 
+                                  format_func=lambda x: f"**{x}**" if x in featured else x, 
+                                  index = 4,
                                   horizontal=True)
         index = dataset_choice.find(" ")
         file_name = "Example_dataset/" + dataset_choice[:index] + "_treatment_effect.csv"

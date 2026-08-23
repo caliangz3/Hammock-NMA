@@ -9,19 +9,13 @@ st.set_page_config(
     layout = "wide"
 )
 
-#st.markdown(
-#    """
-#    Any description?
-#    """
-#)
-
 page = st.sidebar.radio(
     "",
     ("Data upload",
-    "Snapshot & Simple hammock plots",
+    "Snapshot & Standard hammock plots",
     "Frequency-based plots",
     "Metrics-based plots",
-    "Top-k metrics-based plots",
+    "Top-*k* metrics-based plots",
     "Partial ordering plots")
 )
 
@@ -222,19 +216,27 @@ def plot_general_settng(key):
 # Default datasets
 ########################################
 dataset_info = {"Baker2009 (Bayesian random-effects model)": "Baker WL, Baker EL, Coleman CI (2009): Pharmacologic Treatments for Chronic Obstructive Pulmonary Disease: A Mixed-Treatment Comparison Meta-analysis. Pharmacotherapy: The Journal of Human Pharmacology and Drug Therapy, 29, 891–905",
+                "Boland2003 (Bayesian random-effects model)": "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302] \n\nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]",
                 "Dogliotti2014 (Bayesian random-effects model)": "Dogliotti A, Paolasso E, Giugliano RP (2014): Current and new oral antithrombotics in non-valvular atrial fibrillation: a network meta-analysis of 79 808 patients. Heart, 100, 396–405",
                 "Dong2013 (Frequentist Mantel-Haenszel method)": "Dong Y-H, Lin H-H, Shau W-Y, Wu Y-C, Chang C-H, Lai M-S (2013): Comparative safety of inhaled medications in patients with chronic obstructive pulmonary disease: systematic review and mixed treatment comparison meta-analysis of randomised controlled trials. Thorax, 68, 48–56",
+                "Elliott2007 (Bayesian random-effects model)": "Dias S, Welton NJ, Sutton AJ, Ades AE (2011). “NICE DSU technical support document 2: a generalised linear modelling framework for pairwise and network meta-analysis of randomised controlled trials.” National Institute for Health and Clinical Excellence. \n\nElliott WJ, Meyer PM (2007). “Incident diabetes in clinical trials of antihypertensive drugs: a network meta-analysis.” The Lancet, 369(9557), 201–207.",
                 "Franchini2012 (Bayesian fixed-effects model)": "Franchini AJ, Dias S, Ades AE, Jansen JP, Welton NJ (2012): Accounting for correlation in network meta-analysis with multi-arm trials. Research Synthesis Methods, 3, 142–60",
-                "Gurusamy2011 (Bayesian fixed-effects model)": "Gurusamy KS, Pissanou T, Pikhart H, Vaughan J, Burroughs AK, Davidson BR (2011): Methods to decrease blood loss and transfusion requirements for liver transplantation. Cochrane Database of Systematic Reviews, CD009052",
-                "Boland2003 (Bayesian random-effects model)": "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302] \n\nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]",
-                "Rochwerg2014 (Frequentist fix-effects model)": "Rochwerg B, Alhazzani W, Sindi A, et al. (2014): Fluid resuscitation in sepsis: A systematic review and network meta-analysis. Annals of Internal Medicine, 161, 347–355.",
                 "Fretheim2012 (Frequentist random-effects model)": "Fretheim A, Odgaard-Jensen J, Brørs O, et al. (2012): Comparative effectiveness of antihypertensive medication for primary prevention of cardiovascular disease: Systematic review and multiple treatments meta-analysis. BMC Medicine, 10, 33." ,
-                "Elliott2007 (Bayesian random-effects model)": "Dias S, Welton NJ, Sutton AJ, Ades AE (2011). “NICE DSU technical support document 2: a generalised linear modelling framework for pairwise and network meta-analysis of randomised controlled trials.” National Institute for Health and Clinical Excellence. \n\nElliott WJ, Meyer PM (2007). “Incident diabetes in clinical trials of antihypertensive drugs: a network meta-analysis.” The Lancet, 369(9557), 201–207."
+                "Gurusamy2011 (Bayesian fixed-effects model)": "Gurusamy KS, Pissanou T, Pikhart H, Vaughan J, Burroughs AK, Davidson BR (2011): Methods to decrease blood loss and transfusion requirements for liver transplantation. Cochrane Database of Systematic Reviews, CD009052",
+                "Rochwerg2014 (Frequentist fix-effects model)": "Rochwerg B, Alhazzani W, Sindi A, et al. (2014): Fluid resuscitation in sepsis: A systematic review and network meta-analysis. Annals of Internal Medicine, 161, 347–355."
                 }
 
+featured = {
+    "Boland2003 (Bayesian random-effects model)",
+    "Elliott2007 (Bayesian random-effects model)",
+}
 
-
-
+Description = {"Snapshot": "Analogous to a stacked barchart with direct labeling (i.e. placing labels directly next onto plotting elements rather than using a separate legend). Each bar represents a rank, and each segment represents a treatment. The height of a treatment's segment is proportional to the posterior probability that the treatment occupies that rank.",
+               "Standard Hammock": "Extends the stacked barcharts by visualizing pairwise distribution of adjacent treatments or ranks while preserving marginal distribution of all rank or all treatments. The height of an univariate bar on a rank axis is proportional to the probability that a treatment occupies that rank. The width of a connector is proportional to the joint posterior probability that one treatment occupies one rank and another treatment occupies the adjacent rank. The connectors leaving a univariate bar partition its height, so their probabilities sum to that bar's marginal probability",
+               "Frequency-based": "Extends the standard hammock plot by highlighting the most frequent treatment hierarchies or rankings to reveal their corresponding posterior probabilities and the uncertainty in the joint posterior distribution. The width of each highlighted path is proportional to the posterior probability of that complete path and remains constant across all axes.",
+               "Metrics-based": "Extends the standard hammock plot by highlighting the treatment hierarchies identified by different ranking metrics to assess how well these hierarchies are supported by the posterior distribution and the associated uncertainty. The width of each highlighted path is proportional to the posterior probability of that complete path and remains constant across all axes.",
+               "Top-k": "Focuses on the top *k* rank positions and the corresponding treatments identified by a ranking metric. All remaining treatments are grouped as 'Others', which helps to reduce the number of distinct sample paths. Hierarchies (or rankings) identified by ranking metrics are highlighted",
+               "Subsetting": "Focuses on a selected subset of treatments and their relative ordering by excluding other treatments, and helps to reduce the number of distinct samples paths. Hierarchies identified by ranking metrics are highlighted." }
 
 
 ###################################################
@@ -254,10 +256,11 @@ if page == "Data upload":
     mode = st.pills("",["Use an example dataset", "Upload my own treatment effects CSV file"], selection_mode="single", label_visibility = "collapsed")
 
     if mode == "Use an example dataset":
-        dataset_choice = st.radio("Available dataset:", dataset_info.keys(), horizontal = True)
+        #dataset_choice = st.radio("Available dataset:", dataset_info.keys(), horizontal = True)
+        dataset_choice = st.radio("Available dataset:", options=list(dataset_info), format_func=lambda x: f"**{x}**" if x in featured else x, 
+                                  horizontal=True)
         index = dataset_choice.find(" ")
         file_name = "Example_dataset/" + dataset_choice[:index] + "_treatment_effect.csv"
-        st.write(file_name)
         default_dataset= pd.read_csv(file_name)
 
         st.caption(dataset_info[dataset_choice])
@@ -341,7 +344,7 @@ if page == "Data upload":
 ####################################################
 # 2. Snap shot & simple version treatment plot
 ####################################################
-if page == "Snapshot & Simple hammock plots":
+if page == "Snapshot & Standard hammock plots":
 
     st.title("Hammock Plots for NMA")
 
@@ -380,7 +383,7 @@ if page == "Snapshot & Simple hammock plots":
         with graph_col:
             st.subheader("Snapshot Plot")
             with st.expander("Description (Click to expand):"):
-                st.write(".....")
+                st.write(Description["Snapshot"])
 
             with st.spinner("Processing data and generating plot..."):
                 
@@ -435,7 +438,7 @@ if page == "Snapshot & Simple hammock plots":
         with graph_col2:
             st.subheader("Hammock plot")
             with st.expander("Description (Click to expand):"):
-                st.write(".....")
+                st.write(Description["Standard Hammock"])
 
             with st.spinner("Processing data and generating plot..."):
 
@@ -516,7 +519,7 @@ if page == "Frequency-based plots":
             augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_frequency")
             augmentation_threshold = 0
             if augmentation == "Yes":
-                augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.02,step = 0.01,
+                augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.03,step = 0.01,
                                                          help="Range from 0 to 1. This ensures that the frequency of each selected " \
                                                          "hierarchy is at least (threshold * 100)% of the original sample size.")
         
@@ -525,7 +528,7 @@ if page == "Frequency-based plots":
             
             st.subheader("Highlighting Frequent Paths")
             with st.expander("Description (Click to expand):"):
-                st.write(".....")
+                st.write(Description["Frequency-based"])
             
             with st.spinner("Processing data and generating plot..."):
 
@@ -685,7 +688,7 @@ if page == "Metrics-based plots":
                 augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_metrics")
                 augmentation_threshold = 0
                 if augmentation == "Yes":
-                    augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.02,step = 0.01,
+                    augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.03,step = 0.01,
                                                             help="Range from 0 to 1. This ensures that the frequency of each selected " \
                                                             "hierarchy is at least (threshold * 100)% of the original sample size.")
 
@@ -702,7 +705,7 @@ if page == "Metrics-based plots":
                 
                 st.subheader("Highlighting Paths from Different Ranking Metrics")
                 with st.expander("Description (Click to expand):"):
-                    st.write(".....")
+                    st.write(Description["Metrics-based"])
 
                 rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
                                                                                             treatment_matrix = st.session_state["treatment_matrix"].copy(), 
@@ -753,7 +756,7 @@ if page == "Metrics-based plots":
 ####################################################
 #5. Top k
 ####################################################
-if page == "Top-k metrics-based plots":
+if page == "Top-*k* metrics-based plots":
 
     st.title("Hammock Plots for NMA")
 
@@ -774,7 +777,7 @@ if page == "Top-k metrics-based plots":
 
                 axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "top_k_axis")
                 chosen_metric_order = selected_treatment_ordering(key = "topk_metrics")
-                top_k = st.number_input("Choose k",min_value = 1,max_value=all_rank.shape[0],value=3)
+                top_k = st.number_input("Choose *k*",min_value = 1,max_value=all_rank.shape[0],value=3)
                 font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng(key = "topk")
                 #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
                 #                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
@@ -848,9 +851,9 @@ if page == "Top-k metrics-based plots":
 
 
             with graph_col:
-                st.subheader("Subsetting Based on the Top-k Treatments in Metric-Based Hierarchies")
+                st.subheader("Subsetting Based on the Top-*k* Treatments in Metric-Based Hierarchies")
                 with st.expander("Description (Click to expand):"):
-                    st.write(".....")
+                    st.write(Description["Top-k"])
                 
                 if axis == "Rank":
                     label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
@@ -920,7 +923,7 @@ if page == "Partial ordering plots":
             with graph_col:
                     st.subheader("Partial ordering of treatments")
                     with st.expander("Description (Click to expand):"):
-                        st.write(".....")
+                        st.write(Description["Subsetting"])
         
             with setting_col:
                 st.subheader("Setting")
@@ -1019,3 +1022,8 @@ if page == "Partial ordering plots":
                                                                 width=fig_width, height = fig_height)
                                                                 #min_bar_height_connectors = 0.2)
                     show_hammock(ax_partial_ordering, key="partial_ordering_download")
+
+
+st.caption("Author: Carmen Alicia Liang Zhen\n"
+            "\nReference paper: Liang Zhen C.A., Béliveau A., Schonlau M. (2026+). Visualizing Joint Ranking Distributions in Network Meta-Analysis with Hammock Plots.")
+

@@ -19,10 +19,11 @@ page = st.sidebar.radio(
     "Partial ordering plots")
 )
 
-########################################
+################################################################################
 # Global constant & Function Definition
-########################################
+################################################################################
 row_length = 15
+
 
 def get_matrices(treatment_effect, small_values_good):
     
@@ -55,7 +56,6 @@ def get_matrices(treatment_effect, small_values_good):
     return rank_matrix, rank_prob_table, treatment_matrix
 
 
-
 def to_multiline_names(names, wrap_mode, row_length):
     '''
     Returns a list of modified name from names such that the length of each line of each element in names is no longer than row_length,
@@ -85,6 +85,7 @@ def plot_hammock(data_df, var, value_order, **kwargs):
                       **kwargs)
     return ax
 
+
 def show_hammock(ax, key, filename = "my_plot.png"):
     st.pyplot(ax.figure, width="content")
 
@@ -102,6 +103,7 @@ def show_hammock(ax, key, filename = "my_plot.png"):
         key = key,
         on_click="ignore")
 
+
 def choose_hi_color(highlight_num):
     default_colors = ["#fdc086",  "#386cb0", "#7fc97f", "#f0027f"]
 
@@ -117,6 +119,7 @@ def choose_hi_color(highlight_num):
                 color = st.color_picker(f"Color {i+1}", value="#00ff00", key=f"highlight_color_{i}")
             highlight_colors.append(color)
     return highlight_colors
+
 
 def MCMC_augmentation(treatment_matrix_metrics_hierarchy, sum_col, augmentation_threshold):
 
@@ -169,7 +172,6 @@ def selected_treatment_ordering(key):
         return selected_order
 
 
-
 def treatment_lebel_wrapping_matrices(rank_matrix, treatment_matrix, all_rank, wrap_mode, row_length):
     if wrap_mode == "No wrapping":
         return rank_matrix, treatment_matrix, all_rank
@@ -179,7 +181,6 @@ def treatment_lebel_wrapping_matrices(rank_matrix, treatment_matrix, all_rank, w
     rank_matrix.columns = to_multiline_names(rank_matrix.columns, wrap_mode, row_length)
 
     return rank_matrix, treatment_matrix, all_rank
-
 
 
 def plot_general_settng(key):
@@ -212,9 +213,12 @@ def plot_general_settng(key):
         return font_size, wrap_mode, None, fig_width, fig_height
 
 
-########################################
-# Default datasets
-########################################
+
+
+
+################################################################################
+# Default datasets & Plot Descriptions
+################################################################################
 dataset_info = {"Baker2009 (Bayesian random-effects model)": "Baker WL, Baker EL, Coleman CI (2009): Pharmacologic Treatments for Chronic Obstructive Pulmonary Disease: A Mixed-Treatment Comparison Meta-analysis. Pharmacotherapy: The Journal of Human Pharmacology and Drug Therapy, 29, 891–905",
                 "Boland2003 (Bayesian random-effects model)": "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302] \n\nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]",
                 "Dogliotti2014 (Bayesian random-effects model)": "Dogliotti A, Paolasso E, Giugliano RP (2014): Current and new oral antithrombotics in non-valvular atrial fibrillation: a network meta-analysis of 79 808 patients. Heart, 100, 396–405",
@@ -226,22 +230,26 @@ dataset_info = {"Baker2009 (Bayesian random-effects model)": "Baker WL, Baker EL
                 "Rochwerg2014 (Frequentist fix-effects model)": "Rochwerg B, Alhazzani W, Sindi A, et al. (2014): Fluid resuscitation in sepsis: A systematic review and network meta-analysis. Annals of Internal Medicine, 161, 347–355."
                 }
 
-featured = {
-    "Boland2003 (Bayesian random-effects model)",
-    "Elliott2007 (Bayesian random-effects model)",
-}
+featured = {"Boland2003 (Bayesian random-effects model)", "Elliott2007 (Bayesian random-effects model)"}
 
-Description = {"Snapshot": "Analogous to a stacked barchart with direct labeling (i.e. placing labels directly next onto plotting elements rather than using a separate legend). Each bar represents a rank, and each segment represents a treatment. The height of a treatment's segment is proportional to the posterior probability that the treatment occupies that rank.",
-               "Standard Hammock": "Extends the stacked barcharts by visualizing pairwise distribution of adjacent treatments or ranks while preserving marginal distribution of all rank or all treatments. The height of an univariate bar on a rank axis is proportional to the probability that a treatment occupies that rank. The width of a connector is proportional to the joint posterior probability that one treatment occupies one rank and another treatment occupies the adjacent rank. The connectors leaving a univariate bar partition its height, so their probabilities sum to that bar's marginal probability",
-               "Frequency-based": "Extends the standard hammock plot by highlighting the most frequent treatment hierarchies or rankings to reveal their corresponding posterior probabilities and the uncertainty in the joint posterior distribution. The width of each highlighted path is proportional to the posterior probability of that complete path and remains constant across all axes.",
+Description = {"Snapshot_rank": "Analogous to a stacked barchart with direct labeling (i.e. placing labels directly next onto plotting elements rather than using a separate legend). Each bar represents a rank, and each segment represents a treatment. The height of a treatment's segment is proportional to the posterior probability that the treatment occupies that rank.",
+               "Snapshot_treatment": "Analogous to a stacked barchart with direct labeling (i.e. placing labels directly next onto plotting elements rather than using a separate legend). Each bar represents a treatment, and each segment represents a rank. The height of a rank's segment is proportional to the posterior probability that the treatment occupies that rank.",
+               "Standard Hammock_rank": "Extends the stacked barcharts by visualizing pairwise distributions of treatments occupying adjacent ranks, while preserving marginal distribution at each rank. The height of a univariate bar on a rank axis is proportional to the probability that a treatment occupies that rank. The width of a connector is proportional to the joint posterior probability that one treatment occupies one rank and another treatment occupies the adjacent rank. The connectors leaving a univariate bar partition its height, so their probabilities sum to that bar's marginal probability",
+               "Standard Hammock_treatment": "Extends the stacked barcharts by visualizing pairwise distributions of ranks for adjacent treatments, while preserving marginal distribution at each treatment. The height of a univariate bar on a treatment axis is proportional to the probability that the treatment occupies that rank. The width of a connector is proportional to the joint posterior probability that one rank is occupied by one treatment and another rank is occupied by the adjacent treatment. The connectors leaving a univariate bar partition its height, so their probabilities sum to that bar's marginal probability",
+               "Frequency-based_rank": "Extends the standard hammock plot by highlighting the most frequent treatment hierarchies to reveal their corresponding posterior probabilities and the uncertainty in the joint posterior distribution. The width of each highlighted hierarchy is proportional to the posterior probability of that complete path and remains constant across all axes.",
+               "Frequency-based_treatment": "Extends the standard hammock plot by highlighting the most frequent treatment rankings to reveal their corresponding posterior probabilities and the uncertainty in the joint posterior distribution. The width of each highlighted ranking is proportional to the posterior probability of that complete path and remains constant across all axes.",
                "Metrics-based": "Extends the standard hammock plot by highlighting the treatment hierarchies identified by different ranking metrics to assess how well these hierarchies are supported by the posterior distribution and the associated uncertainty. The width of each highlighted path is proportional to the posterior probability of that complete path and remains constant across all axes.",
-               "Top-k": "Focuses on the top *k* rank positions and the corresponding treatments identified by a ranking metric. All remaining treatments are grouped as 'Others', which helps to reduce the number of distinct sample paths. Hierarchies (or rankings) identified by ranking metrics are highlighted",
+               "Top-k_rank": "Focuses on the top *k* rank positions and the corresponding treatments identified by a ranking metric. All remaining treatments are grouped as 'Others', which helps to reduce the number of distinct sample paths. Hierarchies identified by ranking metrics are highlighted",
+               "Top-k_treatment": "Focuses on the treatments occupying the top *k* rank positions in a metric-based hierarchy. All ranks greater than *k* are grouped as 'Others', which helps to reduce the number of distinct sample paths. Rankings corresponding to the hierarchies identified by ranking metrics are highlighted",
                "Subsetting": "Focuses on a selected subset of treatments and their relative ordering by excluding other treatments, and helps to reduce the number of distinct samples paths. Hierarchies identified by ranking metrics are highlighted." }
 
 
-###################################################
+
+
+
+###########################################################################################
 # 1. Use default dataset or upload your own dataset
-###################################################
+###########################################################################################
 if "treatment_effect" not in st.session_state:
     st.session_state["treatment_effect"] = None
 
@@ -256,9 +264,8 @@ if page == "Data upload":
     mode = st.pills("",["Use an example dataset", "Upload my own treatment effects CSV file"], selection_mode="single", label_visibility = "collapsed")
 
     if mode == "Use an example dataset":
-        #dataset_choice = st.radio("Available dataset:", dataset_info.keys(), horizontal = True)
         dataset_choice = st.radio("Available dataset:", options=list(dataset_info), 
-                                  format_func=lambda x: f"**{x}**" if x in featured else x, 
+                                  format_func = lambda x: f"**{x}**" if x in featured else x, 
                                   index = 4,
                                   horizontal=True)
         index = dataset_choice.find(" ")
@@ -279,7 +286,6 @@ if page == "Data upload":
             if uploaded_file.size > 10 * 1024 * 1024:
                 st.warning("File size is greater than 10MB, data processing and plots generation will be slow.")
             data = pd.read_csv(uploaded_file)
-            #data.columns = data.columns.str.replace("\r", "", regex=False)
             st.session_state["treatment_effect"] = data
             st.success("Dataset uploaded successfully.")
 
@@ -300,7 +306,6 @@ if page == "Data upload":
         small_values_good = st.session_state["small_values_good"]
 
         with st.spinner("Processing dataset and generating ranking matrices..."):
-            #treatment_effect.columns = to_multiline_names(treatment_effect.columns, row_length)
             rank_matrix, prob_matrix, treatment_matrix = get_matrices(treatment_effect, small_values_good)
 
             # metrics ranking hierarchies
@@ -329,7 +334,6 @@ if page == "Data upload":
             
         st.markdown("##### Treatment hierarchies based on different ranking metrics:")
         st.table(all_rank)
-        #st.table(all_rank.replace("\n", "", regex=True))
 
         st.session_state["rank_matrix"] = rank_matrix
         st.session_state["prob_matrix"] = prob_matrix
@@ -343,24 +347,14 @@ if page == "Data upload":
 
 
 
-####################################################
+############################################################################################
 # 2. Snap shot & simple version treatment plot
-####################################################
+############################################################################################
 if page == "Snapshot & Standard hammock plots":
 
     st.title("Hammock Plots for NMA")
 
     if st.session_state["treatment_effect"] is not None:
-
-        #row_length = 15
-        #treatment_effect = st.session_state["treatment_effect"].copy()
-        #treatment_effect.columns = to_multiline_names(treatment_effect.columns, row_length)
-        #small_values_good = st.session_state["small_values_good"]
-
-        #rank_matrix, prob_matrix, treatment_matrix = get_matrices(treatment_effect, small_values_good)
-        #rank_matrix = st.session_state["rank_matrix"].copy()
-        #treatment_matrix = st.session_state["treatment_matrix"].copy()
-        #all_rank = st.session_state["all_rank"]
 
         graph_col, setting_col = st.columns([2,1])
 
@@ -368,14 +362,8 @@ if page == "Snapshot & Standard hammock plots":
             st.subheader("Snapshot plot settings")
             snapshot_axis = st.radio("Column names represent: ",("Rank", "Treatment"), key = "snapshot_axis")
             chosen_metric_order = selected_treatment_ordering(key = "snapshot_treatment_order")
-            #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
-            #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=15.0, step = 0.5)
             font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng("snapshot")
             color = st.color_picker("Figure Color",value="#beaed4") ##87CEEB
-            #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=8.5,step = 0.5)
-            #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-            #                             help="Treatment names longer than this number of characters will wrap onto multiple lines",
-            #                             key="snapshot_rowlength")
             snapshot_uni_vfill = st.slider("Univariate bar vertical fill",min_value = 0.0,max_value=1.0,value=0.9,step = 0.01,
                                            help = "Fraction of vertical space that should be populated by data. Adjusts the height of the data points")
             snapshot_uni_hfill = st.slider("Univariate bar horizontal fill",min_value = 0.0, max_value=1.0,value=0.85,step = 0.01,
@@ -385,7 +373,10 @@ if page == "Snapshot & Standard hammock plots":
         with graph_col:
             st.subheader("Snapshot Plot")
             with st.expander("Description (Click to expand):"):
-                st.write(Description["Snapshot"])
+                if snapshot_axis == "Rank":
+                    st.write(Description["Snapshot_rank"])
+                else:
+                    st.write(Description["Snapshot_treatment"])
 
             with st.spinner("Processing data and generating plot..."):
                 
@@ -396,8 +387,6 @@ if page == "Snapshot & Standard hammock plots":
                                                                                             wrap_mode= wrap_mode,
                                                                                             row_length = row_length)
                 
-                #p_best_treatment_order = all_rank["PBV"].tolist()
-                #chosen_metric = user_chosen_metric(treatment_order_metrics)
                 treatment_order = to_multiline_names(chosen_metric_order, wrap_mode, row_length)
                 
                 rank_order = treatment_matrix.columns.tolist()
@@ -428,19 +417,16 @@ if page == "Snapshot & Standard hammock plots":
             
             axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "simple_axis")
             chosen_metric_order = selected_treatment_ordering(key = "simple_treatment_order")
-            #Hfig_width = st.number_input("Hammock plot width (inches)",min_value = 1.0,max_value=100.0,value=20.0, step= 0.5)
-            #Hfig_height = st.number_input("Hammock plot height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
             Hfont_size, wrap_mode, row_length, Hfig_width, Hfig_height = plot_general_settng(key = "simple_hammock")
             Hcolor = st.color_picker("Hammock plot color",value="#beaed4") #87CEEB
-            #Hfont_size = st.number_input("Hammock plot font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
-            #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-            #                             help="Treatment names longer than this number of characters will wrap onto multiple lines",
-            #                             key="simple_hammock_rowlength")
 
         with graph_col2:
             st.subheader("Hammock plot")
             with st.expander("Description (Click to expand):"):
-                st.write(Description["Standard Hammock"])
+                if axis == "Rank":
+                    st.write(Description["Standard Hammock_rank"])
+                else:
+                    st.write(Description["Standard Hammock_treatment"])
 
             with st.spinner("Processing data and generating plot..."):
 
@@ -451,8 +437,6 @@ if page == "Snapshot & Standard hammock plots":
                                                                                             wrap_mode = wrap_mode,
                                                                                             row_length = row_length)
 
-                #chosen_metric = user_chosen_metric(treatment_order_metrics)
-                #treatment_order = all_rank[chosen_metric].tolist()
                 treatment_order = to_multiline_names(chosen_metric_order, wrap_mode, row_length)
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
                 value_order_simple_rank = {t: rank_order[::-1] for t in treatment_order}
@@ -478,9 +462,9 @@ if page == "Snapshot & Standard hammock plots":
 
 
 
-####################################################
+############################################################################################
 # 3. Frequency-based plots
-####################################################
+############################################################################################
 if page == "Frequency-based plots":
 
     st.title("Hammock Plots for NMA")
@@ -488,13 +472,6 @@ if page == "Frequency-based plots":
     if st.session_state["treatment_effect"] is None:
         st.info("Please use **an example** dataset or upload a CSV file.")
     else:
-        #rank_matrix = st.session_state["rank_matrix"]
-        #treatment_matrix = st.session_state["treatment_matrix"]
-        #all_rank = st.session_state["all_rank"]
-        
-        
-        #p_best_treatment_order = st.session_state["all_rank"]["PBV"].tolist()
-        #value_order_simple_treatment = {k:p_best_treatment_order[::-1] for k in rank_order}
 
         graph_col, setting_col = st.columns([2, 1])
 
@@ -511,12 +488,6 @@ if page == "Frequency-based plots":
                                             help = "The most probable k hierarchies will be highlighted using distinct colors")
             default_color = st.color_picker("Default Color",value="#D9D9D9")
             hi_color = choose_hi_color(highlight_top)
-            #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-            #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-            #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
-            #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-            #                             help="Treatment names longer than this number of characters will wrap onto multiple lines",
-            #                             key="Frequency-based_rowlength")
             font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng("Frequency-based")
             augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_frequency")
             augmentation_threshold = 0
@@ -530,7 +501,10 @@ if page == "Frequency-based plots":
             
             st.subheader("Highlighting Frequent Paths")
             with st.expander("Description (Click to expand):"):
-                st.write(Description["Frequency-based"])
+                if axis == "Rank":
+                    st.write(Description["Frequency-based_rank"])
+                else:
+                    st.write(Description["Frequency-based_treatment"])
             
             with st.spinner("Processing data and generating plot..."):
 
@@ -541,11 +515,8 @@ if page == "Frequency-based plots":
                                                                                             row_length = row_length)
 
                 rank_order = treatment_matrix.columns.tolist()
-                #chosen_metric = user_chosen_metric(treatment_order_metrics)
-                #treatment_order = all_rank[chosen_metric].tolist()
                 treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
                 value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
-                #value_order_simple_rank = {t: rank_order[::-1] for t in treatment_order}
 
                 row_combine = pd.Series(["|".join(treatment_matrix.iloc[idx].tolist()) for idx in treatment_matrix.index])
                 rows_freq = row_combine.value_counts()
@@ -626,138 +597,127 @@ if page == "Frequency-based plots":
 
 
 
-####################################################
+############################################################################################
 #4. Metrics-based plots
-####################################################
+############################################################################################
 if page == "Metrics-based plots":
 
     st.title("Hammock Plots for NMA")
 
+    graph_col, setting_col = st.columns([2, 1])
+    with setting_col:
+        st.subheader("Setting")
+
     if st.session_state["treatment_effect"] is None:
         st.info("Please use **an example** dataset or upload a CSV file.")
     else:
-        
-        with st.spinner("Processing data and generating plot..."):
-        
-            rank_matrix = st.session_state["rank_matrix"]
-            treatment_matrix = st.session_state["treatment_matrix"]
-            all_rank = st.session_state["all_rank"]
-            
-            row_combine = pd.Series(["|".join(treatment_matrix.iloc[idx].tolist()) for idx in treatment_matrix.index])
+        with graph_col:
+            st.subheader("Highlighting Paths from Different Ranking Metrics")
+            with st.expander("Description (Click to expand):"):
+                st.write(Description["Metrics-based"])
 
-            rank_pattern = all_rank.apply(lambda col: "|".join(col))
+            with st.spinner("Processing data and generating plot..."):
 
-            pattern_sum = {}
-            for idx, value in rank_pattern.items():
-                if value not in pattern_sum:
-                    pattern_sum[value] = []
-                pattern_sum[value].append(idx)
-
-            for key in pattern_sum.keys():
-                group_name = "/".join(pattern_sum[key])
-                pattern_sum[key] = group_name
-
-            metrics_hierarchy = []
-            for value in row_combine:
-                if value in pattern_sum:
-                    metrics_hierarchy.append(pattern_sum[value])
-                else:
-                    metrics_hierarchy.append("Others")
-
-            #treatment_matrix_metrics_hierarchy = treatment_matrix.assign(Metrics=metrics_hierarchy)
-
-            metrics_freq = pd.Series(metrics_hierarchy).value_counts()
-            metrics_freq_moveOthers = pd.concat([metrics_freq.drop("Others"), metrics_freq.loc[["Others"]]])
-            hierarchy_order = metrics_freq_moveOthers.index.tolist()[::-1]
-            highlight_num = len(hierarchy_order)-1
-
-
-            graph_col, setting_col = st.columns([2, 1])
-
-            with setting_col:
-                st.subheader("Setting")
-
-                chosen_metric_order = selected_treatment_ordering(key = "metric_metrics")
-                default_color = st.color_picker("Default Color",value="#D9D9D9")
-                hi_color = choose_hi_color(highlight_num)
-                font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng("Frequency-based")
-                #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-                #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-                #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
-                #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                #                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                #                         key="metrics-based_rowlength")
-                augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_metrics")
-                augmentation_threshold = 0
-                if augmentation == "Yes":
-                    augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.03,step = 0.01,
-                                                            help="Range from 0 to 1. This ensures that the frequency of each selected " \
-                                                            "hierarchy is at least (threshold * 100)% of the original sample size.")
-
-
-            rank_order = treatment_matrix.columns.tolist()
-            #p_best_treatment_order = st.session_state["all_rank"]["PBV"].tolist()
-            #value_order_simple_treatment = {k:p_best_treatment_order[::-1] for k in rank_order}
-            #chosen_metric = user_chosen_metric(treatment_order_metrics)
-            #treatment_order = all_rank[chosen_metric].tolist()
-            treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
-            value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
-
-            with graph_col:
+                rank_matrix = st.session_state["rank_matrix"]
+                treatment_matrix = st.session_state["treatment_matrix"]
+                all_rank = st.session_state["all_rank"]
                 
-                st.subheader("Highlighting Paths from Different Ranking Metrics")
-                with st.expander("Description (Click to expand):"):
-                    st.write(Description["Metrics-based"])
+                row_combine = pd.Series(["|".join(treatment_matrix.iloc[idx].tolist()) for idx in treatment_matrix.index])
 
-                rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
-                                                                                            treatment_matrix = st.session_state["treatment_matrix"].copy(), 
-                                                                                            all_rank = st.session_state["all_rank"].copy(),
-                                                                                            wrap_mode = wrap_mode,
-                                                                                            row_length = row_length)
-                treatment_matrix_metrics_hierarchy = treatment_matrix.assign(Metrics=metrics_hierarchy)
-                
+                rank_pattern = all_rank.apply(lambda col: "|".join(col))
 
-                # treatment plot: Hierarchy = metrics
-                label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
+                pattern_sum = {}
+                for idx, value in rank_pattern.items():
+                    if value not in pattern_sum:
+                        pattern_sum[value] = []
+                    pattern_sum[value].append(idx)
 
-                metrics_var = treatment_matrix_metrics_hierarchy.columns.tolist()
-                metrics_var = metrics_var[-1:]+metrics_var[:-1]
+                for key in pattern_sum.keys():
+                    group_name = "/".join(pattern_sum[key])
+                    pattern_sum[key] = group_name
 
-                value_order_metrics_treatment = value_order_simple_treatment | {"Metrics": hierarchy_order}
-                label_option_metrics_treatment = label_option_simple_treatment | {"Metrics": {"fontsize":font_size}}
-                highlight_hierarchy_metrics = hierarchy_order[1:]
-                hi_color = hi_color[::-1]
-
-                if augmentation == "No":
+                metrics_hierarchy = []
+                for value in row_combine:
+                    if value in pattern_sum:
+                        metrics_hierarchy.append(pattern_sum[value])
+                    else:
+                        metrics_hierarchy.append("Others")
 
 
-                    ax_metrics_treatment = plot_hammock(treatment_matrix_metrics_hierarchy, var=metrics_var, 
-                                                        value_order=value_order_metrics_treatment, default_color=default_color,
-                                                        hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
-                                                        colors=hi_color,same_scale=metrics_var[1:],
-                                                        label_options = label_option_metrics_treatment,
-                                                        width=fig_width, height = fig_height)
-                    show_hammock(ax_metrics_treatment, key="metrics_treatment_download")
-                else:
-                    modified_treatment_matrix_metrics_hierarchy = MCMC_augmentation(treatment_matrix_metrics_hierarchy, sum_col="Metrics", 
-                                                                                    augmentation_threshold = augmentation_threshold)
+                metrics_freq = pd.Series(metrics_hierarchy).value_counts()
+                metrics_freq_moveOthers = pd.concat([metrics_freq.drop("Others"), metrics_freq.loc[["Others"]]])
+                hierarchy_order = metrics_freq_moveOthers.index.tolist()[::-1]
+                highlight_num = len(hierarchy_order)-1
 
-                    ax_modified_metrics_treatment = plot_hammock(modified_treatment_matrix_metrics_hierarchy,
-                                                                var=metrics_var, value_order=value_order_metrics_treatment, 
-                                                                default_color=default_color, hi_var="Metrics", 
-                                                                hi_value=highlight_hierarchy_metrics, colors=hi_color,
-                                                                same_scale=metrics_var[1:],
-                                                                label_options = label_option_metrics_treatment,
-                                                                width=fig_width, height = fig_height)
-                    show_hammock(ax_modified_metrics_treatment, key="metrics_treatment_modified_download")
+                with setting_col:
 
+                    chosen_metric_order = selected_treatment_ordering(key = "metric_metrics")
+                    default_color = st.color_picker("Default Color",value="#D9D9D9")
+                    hi_color = choose_hi_color(highlight_num)
+                    font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng("Frequency-based")
+
+                    augmentation = st.radio("Needs augmentation?",("Yes", "No"), index=1, key="augmentation_metrics")
+                    augmentation_threshold = 0
+                    if augmentation == "Yes":
+                        augmentation_threshold = st.number_input("Augmentation threshold",min_value = 0.0,max_value=1.0,value=0.03,step = 0.01,
+                                                                help="Range from 0 to 1. This ensures that the frequency of each selected " \
+                                                                "hierarchy is at least (threshold * 100)% of the original sample size.")
 
 
+                rank_order = treatment_matrix.columns.tolist()
+                treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
+                value_order_simple_treatment = {k:treatment_order[::-1] for k in rank_order}
+
+                with graph_col:
+
+                    rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
+                                                                                                treatment_matrix = st.session_state["treatment_matrix"].copy(), 
+                                                                                                all_rank = st.session_state["all_rank"].copy(),
+                                                                                                wrap_mode = wrap_mode,
+                                                                                                row_length = row_length)
+                    treatment_matrix_metrics_hierarchy = treatment_matrix.assign(Metrics=metrics_hierarchy)
+                    
+
+                    # treatment plot: Hierarchy = metrics
+                    label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
+
+                    metrics_var = treatment_matrix_metrics_hierarchy.columns.tolist()
+                    metrics_var = metrics_var[-1:]+metrics_var[:-1]
+
+                    value_order_metrics_treatment = value_order_simple_treatment | {"Metrics": hierarchy_order}
+                    label_option_metrics_treatment = label_option_simple_treatment | {"Metrics": {"fontsize":font_size}}
+                    highlight_hierarchy_metrics = hierarchy_order[1:]
+                    hi_color = hi_color[::-1]
+
+                    if augmentation == "No":
+
+                        ax_metrics_treatment = plot_hammock(treatment_matrix_metrics_hierarchy, var=metrics_var, 
+                                                            value_order=value_order_metrics_treatment, default_color=default_color,
+                                                            hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
+                                                            colors=hi_color,same_scale=metrics_var[1:],
+                                                            label_options = label_option_metrics_treatment,
+                                                            width=fig_width, height = fig_height)
+                        show_hammock(ax_metrics_treatment, key="metrics_treatment_download")
+                    else:
+                        modified_treatment_matrix_metrics_hierarchy = MCMC_augmentation(treatment_matrix_metrics_hierarchy, sum_col="Metrics", 
+                                                                                        augmentation_threshold = augmentation_threshold)
+
+                        ax_modified_metrics_treatment = plot_hammock(modified_treatment_matrix_metrics_hierarchy,
+                                                                    var=metrics_var, value_order=value_order_metrics_treatment, 
+                                                                    default_color=default_color, hi_var="Metrics", 
+                                                                    hi_value=highlight_hierarchy_metrics, colors=hi_color,
+                                                                    same_scale=metrics_var[1:],
+                                                                    label_options = label_option_metrics_treatment,
+                                                                    width=fig_width, height = fig_height)
+                        show_hammock(ax_modified_metrics_treatment, key="metrics_treatment_modified_download")
 
 
-####################################################
+
+
+
+############################################################################################
 #5. Top k
-####################################################
+############################################################################################
 if page == "Top-*k* metrics-based plots":
 
     st.title("Hammock Plots for NMA")
@@ -766,141 +726,135 @@ if page == "Top-*k* metrics-based plots":
         st.info("Please use **an example** dataset or upload a CSV file.")
     else:
 
-        with st.spinner("Processing data and generating plot..."):
+        graph_col, setting_col = st.columns([2, 1])
+        with setting_col:
+            st.subheader("Setting")
+            axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "top_k_axis")
 
-            #rank_matrix = st.session_state["rank_matrix"]
-            #treatment_matrix = st.session_state["treatment_matrix"]
-            all_rank = st.session_state["all_rank"].copy()
-            
-            graph_col, setting_col = st.columns([2, 1])
-
-            with setting_col:
-                st.subheader("Setting")
-
-                axis = st.radio("Column names represent:",("Rank", "Treatment"), key = "top_k_axis")
-                chosen_metric_order = selected_treatment_ordering(key = "topk_metrics")
-                top_k = st.number_input("Choose *k*",min_value = 1,max_value=all_rank.shape[0],value=3)
-                font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng(key = "topk")
-                #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                #                         help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                #                         key="topk_rowlength")
-                default_color = st.color_picker("Default Color",value="#D9D9D9")
-            
-
-            rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
-                                                                                        treatment_matrix = st.session_state["treatment_matrix"].copy(), 
-                                                                                        all_rank = st.session_state["all_rank"].copy(),
-                                                                                        wrap_mode = wrap_mode,
-                                                                                        row_length = row_length)
-
-            #chosen_metric = user_chosen_metric(treatment_order_metrics)
-            #treatment_order = all_rank[chosen_metric].tolist()
-            #p_best_treatment_order = st.session_state["all_rank"]["PBV"].tolist()
-            treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
-            rank_order = treatment_matrix.columns.tolist()
-
-
-            others_treatment = treatment_order[top_k:]
-            
-
-            top_k_treatment = treatment_matrix.copy()
-            for i in range(top_k_treatment.shape[0]):
-                current_row = top_k_treatment.iloc[i].isin(others_treatment).to_numpy()
-                top_k_treatment.iloc[i, current_row] = "Others"
-
-            top_k_all_rank= all_rank.copy()
-            for j in range(top_k_all_rank.shape[1]):
-                current_column = top_k_all_rank.iloc[:, j].isin(others_treatment)
-                top_k_all_rank.iloc[current_column, j] = "Others"
-
-            row_combine_top_k = pd.Series(["|".join(top_k_treatment.iloc[idx].tolist()) for idx in top_k_treatment.index])
-
-            rank_pattern = top_k_all_rank.apply(lambda col: "|".join(col))
-
-            pattern_sum = {}
-            for idx, value in rank_pattern.items():
-                if value not in pattern_sum:
-                    pattern_sum[value] = []
-                pattern_sum[value].append(idx)
-
-            for key in pattern_sum.keys():
-                group_name = "/".join(pattern_sum[key])
-                pattern_sum[key] = group_name
-
-            metrics_hierarchy = []
-            for value in row_combine_top_k:
-                if value in pattern_sum:
-                    metrics_hierarchy.append(pattern_sum[value])
-                else:
-                    metrics_hierarchy.append("Others")
-
-            top_k_treatment_matrix_metrics = top_k_treatment.assign(Metrics=metrics_hierarchy)
-
-            # top k treatment plot
-            top_var = ["Metrics"] + top_k_treatment_matrix_metrics.columns.tolist()[:top_k]
-
-            metrics_freq = pd.Series(metrics_hierarchy).value_counts()
-            metrics_freq_moveOthers = pd.concat([metrics_freq.drop("Others"), metrics_freq.loc[["Others"]]])
-            hierarchy_order = metrics_freq_moveOthers.index.tolist()[::-1]
-            highlight_hierarchy_metrics = hierarchy_order[1:]
-            highlight_num = len(hierarchy_order)-1
-
-            with setting_col:
-                hi_color = choose_hi_color(highlight_num)
-                #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.5)
-                #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-                #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-
-
-            with graph_col:
-                st.subheader("Subsetting Based on the Top-*k* Treatments in Metric-Based Hierarchies")
-                with st.expander("Description (Click to expand):"):
-                    st.write(Description["Top-k"])
-                
+        with graph_col:
+            st.subheader("Subsetting Based on the Top-*k* Treatments in Metric-Based Hierarchies")
+            with st.expander("Description (Click to expand):"):
                 if axis == "Rank":
-                    label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
-                    value_order_metrics_treatment = {k:["Others"]+treatment_order[:top_k][::-1] for k in top_k_treatment_matrix_metrics.columns.tolist()[:top_k]} | {"Metrics": hierarchy_order}
-                    label_option_metrics_treatment = label_option_simple_treatment | {"Metrics": {"fontsize":font_size}}
-                    
-                    ax_metrics_topK_treatment = plot_hammock(top_k_treatment_matrix_metrics, var=top_var, 
-                                                            value_order=value_order_metrics_treatment, default_color=default_color,
-                                                            hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
-                                                            colors=hi_color[::-1],same_scale=top_var[1:],
-                                                            label_options = label_option_metrics_treatment,
-                                                            width=fig_width, height = fig_height)
-                    
-                    show_hammock(ax_metrics_topK_treatment, key="ax_metrics_topK_treatment_download")
-
+                    st.write(Description["Top-k_rank"])
                 else:
-                    top_k_rank = rank_matrix.copy().astype(object)
-                    others_treatment = list(range(top_k+1, top_k_rank.shape[1]+1))
+                    st.write(Description["Top-k_treatment"])
+        
+            with st.spinner("Processing data and generating plot..."):
 
-                    for i in range(top_k_rank.shape[0]):
-                        col = top_k_rank.iloc[i] > top_k
-                        top_k_rank.iloc[i, col.values] = "Others"
+                all_rank = st.session_state["all_rank"].copy()
 
-                    top_k_rank_matrix_metrics = top_k_rank.assign(Metrics=metrics_hierarchy)
+                with setting_col:
 
-                    treatment_order_topk_hier = ["Metrics"] + treatment_order[:top_k]
-                    value_order_top_rank = {t: ["Others"]+list(range(1, top_k+1))[::-1] for t in treatment_order[:top_k]} | {"Metrics": hierarchy_order}
-                    label_option_simple_rank = {t: {"fontsize":font_size} for t in treatment_order}
-                    label_option_top_rank = label_option_simple_rank|{"Metrics": {"fontsize":font_size}}
+                    chosen_metric_order = selected_treatment_ordering(key = "topk_metrics")
+                    top_k = st.number_input("Choose *k*",min_value = 1,max_value=all_rank.shape[0],value=3)
+                    font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng(key = "topk")
+                    default_color = st.color_picker("Default Color",value="#D9D9D9")
+                
 
-                    ax_metrics_topK_rank = plot_hammock(top_k_rank_matrix_metrics, var=treatment_order_topk_hier, 
-                                                            value_order=value_order_top_rank, default_color=default_color,
-                                                            hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
-                                                            colors=hi_color[::-1],same_scale=treatment_order_topk_hier[1:],
-                                                            label_options = label_option_top_rank,
-                                                            width=fig_width, height = fig_height)
-                    show_hammock(ax_metrics_topK_rank, key="metrics_topK_rank_download")
+                rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
+                                                                                            treatment_matrix = st.session_state["treatment_matrix"].copy(), 
+                                                                                            all_rank = st.session_state["all_rank"].copy(),
+                                                                                            wrap_mode = wrap_mode,
+                                                                                            row_length = row_length)
 
-
-
+                treatment_order = to_multiline_names(chosen_metric_order, wrap_mode = wrap_mode, row_length=row_length)
+                rank_order = treatment_matrix.columns.tolist()
 
 
-####################################################
+                others_treatment = treatment_order[top_k:]
+                
+
+                top_k_treatment = treatment_matrix.copy()
+                for i in range(top_k_treatment.shape[0]):
+                    current_row = top_k_treatment.iloc[i].isin(others_treatment).to_numpy()
+                    top_k_treatment.iloc[i, current_row] = "Others"
+
+                top_k_all_rank= all_rank.copy()
+                for j in range(top_k_all_rank.shape[1]):
+                    current_column = top_k_all_rank.iloc[:, j].isin(others_treatment)
+                    top_k_all_rank.iloc[current_column, j] = "Others"
+
+                row_combine_top_k = pd.Series(["|".join(top_k_treatment.iloc[idx].tolist()) for idx in top_k_treatment.index])
+
+                rank_pattern = top_k_all_rank.apply(lambda col: "|".join(col))
+
+                pattern_sum = {}
+                for idx, value in rank_pattern.items():
+                    if value not in pattern_sum:
+                        pattern_sum[value] = []
+                    pattern_sum[value].append(idx)
+
+                for key in pattern_sum.keys():
+                    group_name = "/".join(pattern_sum[key])
+                    pattern_sum[key] = group_name
+
+                metrics_hierarchy = []
+                for value in row_combine_top_k:
+                    if value in pattern_sum:
+                        metrics_hierarchy.append(pattern_sum[value])
+                    else:
+                        metrics_hierarchy.append("Others")
+
+                top_k_treatment_matrix_metrics = top_k_treatment.assign(Metrics=metrics_hierarchy)
+
+                # top k treatment plot
+                top_var = ["Metrics"] + top_k_treatment_matrix_metrics.columns.tolist()[:top_k]
+
+                metrics_freq = pd.Series(metrics_hierarchy).value_counts()
+                metrics_freq_moveOthers = pd.concat([metrics_freq.drop("Others"), metrics_freq.loc[["Others"]]])
+                hierarchy_order = metrics_freq_moveOthers.index.tolist()[::-1]
+                highlight_hierarchy_metrics = hierarchy_order[1:]
+                highlight_num = len(hierarchy_order)-1
+
+                with setting_col:
+                    hi_color = choose_hi_color(highlight_num)
+
+                with graph_col:
+                    
+                    if axis == "Rank":
+                        label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
+                        value_order_metrics_treatment = {k:["Others"]+treatment_order[:top_k][::-1] for k in top_k_treatment_matrix_metrics.columns.tolist()[:top_k]} | {"Metrics": hierarchy_order}
+                        label_option_metrics_treatment = label_option_simple_treatment | {"Metrics": {"fontsize":font_size}}
+                        
+                        ax_metrics_topK_treatment = plot_hammock(top_k_treatment_matrix_metrics, var=top_var, 
+                                                                value_order=value_order_metrics_treatment, default_color=default_color,
+                                                                hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
+                                                                colors=hi_color[::-1],same_scale=top_var[1:],
+                                                                label_options = label_option_metrics_treatment,
+                                                                width=fig_width, height = fig_height)
+                        
+                        show_hammock(ax_metrics_topK_treatment, key="ax_metrics_topK_treatment_download")
+
+                    else:
+                        top_k_rank = rank_matrix.copy().astype(object)
+                        others_treatment = list(range(top_k+1, top_k_rank.shape[1]+1))
+
+                        for i in range(top_k_rank.shape[0]):
+                            col = top_k_rank.iloc[i] > top_k
+                            top_k_rank.iloc[i, col.values] = "Others"
+
+                        top_k_rank_matrix_metrics = top_k_rank.assign(Metrics=metrics_hierarchy)
+
+                        treatment_order_topk_hier = ["Metrics"] + treatment_order[:top_k]
+                        value_order_top_rank = {t: ["Others"]+list(range(1, top_k+1))[::-1] for t in treatment_order[:top_k]} | {"Metrics": hierarchy_order}
+                        label_option_simple_rank = {t: {"fontsize":font_size} for t in treatment_order}
+                        label_option_top_rank = label_option_simple_rank|{"Metrics": {"fontsize":font_size}}
+
+                        ax_metrics_topK_rank = plot_hammock(top_k_rank_matrix_metrics, var=treatment_order_topk_hier, 
+                                                                value_order=value_order_top_rank, default_color=default_color,
+                                                                hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
+                                                                colors=hi_color[::-1],same_scale=treatment_order_topk_hier[1:],
+                                                                label_options = label_option_top_rank,
+                                                                width=fig_width, height = fig_height)
+                        show_hammock(ax_metrics_topK_rank, key="metrics_topK_rank_download")
+
+
+
+
+
+############################################################################################
 #6. Subordering
-####################################################
+############################################################################################
 if page == "Partial ordering plots":
 
     st.title("Hammock Plots for NMA")
@@ -909,121 +863,112 @@ if page == "Partial ordering plots":
         st.info("Please use **an example** dataset or upload a CSV file.")
     else:
         treatment_effect = st.session_state["treatment_effect"]
-        #all_rank = st.session_state["all_rank"]
         all_treatment = list(treatment_effect.columns)
 
-        #rank_matrix = st.session_state["rank_matrix"]
-        #treatment_matrix = st.session_state["treatment_matrix"]
-        #rank_order = treatment_matrix.columns.tolist()
+        graph_col, setting_col = st.columns([2, 1])
 
-        
-        
-        with st.spinner("Processing data and generating plot..."):
+        with setting_col:
+            st.subheader("Setting")
+            treatment_subset = st.multiselect("Choose at least **two** treatments to display in order:", options = all_treatment)
+            font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng(key = "partial_ordering")
 
-            graph_col, setting_col = st.columns([2, 1])
+        with graph_col:
 
-            with graph_col:
-                    st.subheader("Partial ordering of treatments")
-                    with st.expander("Description (Click to expand):"):
-                        st.write(Description["Subsetting"])
-        
-            with setting_col:
-                st.subheader("Setting")
-                treatment_subset = st.multiselect("Choose a subset of treatments to display in order:", options = all_treatment)
-                font_size, wrap_mode, row_length, fig_width, fig_height = plot_general_settng(key = "partial_ordering")
-                #row_length = st.number_input("Treatment label wrap length",min_value = 5,max_value=30,value=15,step = 1,
-                #                            help="Treatment names longer than this number of characters will wrap onto multiple lines",
-                #                            key="topk_rowlength")
-            if treatment_subset != []:
-                
-                rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
-                                                                                            treatment_matrix = st.session_state["treatment_matrix"].copy(), 
-                                                                                            all_rank = st.session_state["all_rank"].copy(),
-                                                                                            wrap_mode = wrap_mode,
-                                                                                            row_length = row_length)
-                sub_treatmenet_effect = treatment_effect[treatment_subset]
-                sub_treatmenet_effect.columns = to_multiline_names(sub_treatmenet_effect.columns, wrap_mode = wrap_mode, row_length = row_length)
-                small_values_good = st.session_state["small_values_good"]
+            st.subheader("Partial ordering of treatments")
+            with st.expander("Description (Click to expand):"):
+                st.write(Description["Subsetting"])
 
-                if small_values_good:
-                    sub_rank_matrix = sub_treatmenet_effect.rank(axis = 1, method = "average").astype(int)
-                else:
-                    sub_rank_matrix = sub_treatmenet_effect.rank(axis = 1, method = "average", ascending=False).astype(int)
+            selection_message = st.empty()
+            if not treatment_subset:
+                selection_message.info("Plot will display after choosing a subset of treatments.")
+            else:
+                selection_message.empty()
 
-                sub_treatment_matrix = pd.DataFrame([sub_rank_matrix.columns[np.argsort(row)]
-                                                    for row in sub_rank_matrix.to_numpy()],
-                                                    columns=range(1, sub_rank_matrix.shape[1]+1))
-                
-                col_name = sub_treatmenet_effect.columns.tolist()
-                #all_rank = st.session_state["all_rank"]
-                sub_rank = all_rank.where(all_rank.isin(col_name))
-                sub_rank = {col: sub_rank[col].dropna().tolist() for col in sub_rank.columns}
-                sub_rank_matrix = pd.DataFrame(sub_rank)
 
-                rank_pattern = sub_rank_matrix.apply(lambda col: "|".join(col))
+            with st.spinner("Processing data and generating plot..."):
 
-                pattern_sum = {}
-                for idx, value in rank_pattern.items():
-                    if value not in pattern_sum:
-                        pattern_sum[value] = []
-                    pattern_sum[value].append(idx)
-                
-                for key in pattern_sum.keys():
-                    group_name = "/".join(pattern_sum[key])
-                    pattern_sum[key] = group_name
-                
-                row_combine_subset = pd.Series(["|".join(sub_treatment_matrix.iloc[idx].tolist()) for idx in sub_treatment_matrix.index])
-                
-                metrics_hierarchy = []
-                for value in row_combine_subset:
-                    if value in pattern_sum:
-                        metrics_hierarchy.append(pattern_sum[value])
+                if treatment_subset != []:
+                    
+                    rank_matrix, treatment_matrix, all_rank = treatment_lebel_wrapping_matrices(rank_matrix = st.session_state["rank_matrix"].copy(), 
+                                                                                                treatment_matrix = st.session_state["treatment_matrix"].copy(), 
+                                                                                                all_rank = st.session_state["all_rank"].copy(),
+                                                                                                wrap_mode = wrap_mode,
+                                                                                                row_length = row_length)
+                    sub_treatmenet_effect = treatment_effect[treatment_subset]
+                    sub_treatmenet_effect.columns = to_multiline_names(sub_treatmenet_effect.columns, wrap_mode = wrap_mode, row_length = row_length)
+                    small_values_good = st.session_state["small_values_good"]
+
+                    if small_values_good:
+                        sub_rank_matrix = sub_treatmenet_effect.rank(axis = 1, method = "average").astype(int)
                     else:
-                        metrics_hierarchy.append("Others")
+                        sub_rank_matrix = sub_treatmenet_effect.rank(axis = 1, method = "average", ascending=False).astype(int)
 
-                sub_treatment_matrix_metrics = sub_treatment_matrix.assign(Metrics=metrics_hierarchy)
-                
+                    sub_treatment_matrix = pd.DataFrame([sub_rank_matrix.columns[np.argsort(row)]
+                                                        for row in sub_rank_matrix.to_numpy()],
+                                                        columns=range(1, sub_rank_matrix.shape[1]+1))
+                    
+                    col_name = sub_treatmenet_effect.columns.tolist()
+                    sub_rank = all_rank.where(all_rank.isin(col_name))
+                    sub_rank = {col: sub_rank[col].dropna().tolist() for col in sub_rank.columns}
+                    sub_rank_matrix = pd.DataFrame(sub_rank)
 
-                metrics_freq = pd.Series(metrics_hierarchy).value_counts()
-                if "Others" in metrics_freq.index:
-                    metrics_freq_moveOthers = pd.concat([metrics_freq.drop("Others"), metrics_freq.loc[["Others"]]])
-                    highlight_num = len(metrics_freq)-1
-                else:
-                    metrics_freq_moveOthers = metrics_freq
-                    highlight_num = len(metrics_freq)
-                hierarchy_order = metrics_freq_moveOthers.index.tolist()[::-1]
-                
-                with setting_col:
-                    default_color = st.color_picker("Default Color",value="#D9D9D9")
-                    hi_color = choose_hi_color(highlight_num)
-                    #fig_width = st.number_input("Figure width (inches)",min_value = 1.0,max_value=100.0,value=23.0, step= 0.5)
-                    #fig_height = st.number_input("Figure height (inches)",min_value = 1.0,max_value=100.0,value=10.0, step = 0.5)
-                    #font_size = st.number_input("Font size",min_value = 0.0,max_value=100.0,value=13.0,step = 0.01)
+                    rank_pattern = sub_rank_matrix.apply(lambda col: "|".join(col))
 
-                with graph_col:
+                    pattern_sum = {}
+                    for idx, value in rank_pattern.items():
+                        if value not in pattern_sum:
+                            pattern_sum[value] = []
+                        pattern_sum[value].append(idx)
+                    
+                    for key in pattern_sum.keys():
+                        group_name = "/".join(pattern_sum[key])
+                        pattern_sum[key] = group_name
+                    
+                    row_combine_subset = pd.Series(["|".join(sub_treatment_matrix.iloc[idx].tolist()) for idx in sub_treatment_matrix.index])
+                    
+                    metrics_hierarchy = []
+                    for value in row_combine_subset:
+                        if value in pattern_sum:
+                            metrics_hierarchy.append(pattern_sum[value])
+                        else:
+                            metrics_hierarchy.append("Others")
 
-                    #wrapped_names = dict(zip(rank_matrix.columns,to_multiline_names(rank_matrix, row_length)))
-                    #sub_treatment_matrix = sub_treatment_matrix.replace(wrapped_names)
-                    #sub_treatment_matrix_metrics = sub_treatment_matrix.assign(Metrics=metrics_hierarchy)
+                    sub_treatment_matrix_metrics = sub_treatment_matrix.assign(Metrics=metrics_hierarchy)
+                    
 
-                    rank_order = treatment_matrix.columns.tolist()
-                    var_subset = ["Metrics"] + sub_treatment_matrix.columns.tolist()
+                    metrics_freq = pd.Series(metrics_hierarchy).value_counts()
+                    if "Others" in metrics_freq.index:
+                        metrics_freq_moveOthers = pd.concat([metrics_freq.drop("Others"), metrics_freq.loc[["Others"]]])
+                        highlight_num = len(metrics_freq)-1
+                    else:
+                        metrics_freq_moveOthers = metrics_freq
+                        highlight_num = len(metrics_freq)
+                    hierarchy_order = metrics_freq_moveOthers.index.tolist()[::-1]
+                    
+                    with setting_col:
+                        default_color = st.color_picker("Default Color",value="#D9D9D9")
+                        hi_color = choose_hi_color(highlight_num)
 
-                    treatment_order = sub_treatmenet_effect.columns.tolist()[::-1]
+                    with graph_col:
 
-                    value_order_subset = {k: treatment_order for k in sub_treatment_matrix.columns.tolist()} | {"Metrics": hierarchy_order}
-                    highlight_hierarchy_metrics = hierarchy_order[1:]
-                    label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
-                    label_option_metrics_treatment = label_option_simple_treatment | {"Metrics": {"fontsize":font_size}}
+                        rank_order = treatment_matrix.columns.tolist()
+                        var_subset = ["Metrics"] + sub_treatment_matrix.columns.tolist()
 
-                    ax_partial_ordering = plot_hammock(sub_treatment_matrix_metrics, var=var_subset, 
-                                                                value_order=value_order_subset, default_color=default_color,
-                                                                hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
-                                                                colors=hi_color[::-1],same_scale=var_subset[1:],
-                                                                label_options = label_option_metrics_treatment,
-                                                                width=fig_width, height = fig_height)
-                                                                #min_bar_height_connectors = 0.2)
-                    show_hammock(ax_partial_ordering, key="partial_ordering_download")
+                        treatment_order = sub_treatmenet_effect.columns.tolist()[::-1]
+
+                        value_order_subset = {k: treatment_order for k in sub_treatment_matrix.columns.tolist()} | {"Metrics": hierarchy_order}
+                        highlight_hierarchy_metrics = hierarchy_order[1:]
+                        label_option_simple_treatment = {k: {"fontsize":font_size} for k in rank_order}
+                        label_option_metrics_treatment = label_option_simple_treatment | {"Metrics": {"fontsize":font_size}}
+
+                        ax_partial_ordering = plot_hammock(sub_treatment_matrix_metrics, var=var_subset, 
+                                                                    value_order=value_order_subset, default_color=default_color,
+                                                                    hi_var="Metrics", hi_value=highlight_hierarchy_metrics, 
+                                                                    colors=hi_color[::-1],same_scale=var_subset[1:],
+                                                                    label_options = label_option_metrics_treatment,
+                                                                    width=fig_width, height = fig_height)
+                                                                    #min_bar_height_connectors = 0.2)
+                        show_hammock(ax_partial_ordering, key="partial_ordering_download")
 
 
 st.caption("Author: Carmen Alicia Liang Zhen\n"

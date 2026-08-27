@@ -20,10 +20,8 @@ page = st.sidebar.radio(
 )
 
 ################################################################################
-# Global constant & Function Definition
+# Function Definition
 ################################################################################
-row_length = 15
-
 
 def get_matrices(treatment_effect, small_values_good):
     

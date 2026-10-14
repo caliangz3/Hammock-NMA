@@ -90,7 +90,7 @@ def show_hammock(ax, key, filename = "my_plot.png"):
     buf = io.BytesIO()
     ax.figure.savefig(buf, format = "png", bbox_inches="tight")
     buf.seek(0)
-    
+
     st.download_button(
         label="Download PNG",
         data=buf,
@@ -217,15 +217,51 @@ def plot_general_settng(key):
 ################################################################################
 # Default datasets & Plot Descriptions
 ################################################################################
-dataset_info = {"Baker2009 (Bayesian random-effects model)": "Baker WL, Baker EL, Coleman CI (2009): Pharmacologic Treatments for Chronic Obstructive Pulmonary Disease: A Mixed-Treatment Comparison Meta-analysis. Pharmacotherapy: The Journal of Human Pharmacology and Drug Therapy, 29, 891–905",
-                "Boland2003 (Bayesian random-effects model)": "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302] \n\nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]",
-                "Dogliotti2014 (Bayesian random-effects model)": "Dogliotti A, Paolasso E, Giugliano RP (2014): Current and new oral antithrombotics in non-valvular atrial fibrillation: a network meta-analysis of 79 808 patients. Heart, 100, 396–405",
-                "Dong2013 (Frequentist Mantel-Haenszel method)": "Dong Y-H, Lin H-H, Shau W-Y, Wu Y-C, Chang C-H, Lai M-S (2013): Comparative safety of inhaled medications in patients with chronic obstructive pulmonary disease: systematic review and mixed treatment comparison meta-analysis of randomised controlled trials. Thorax, 68, 48–56",
-                "Elliott2007 (Bayesian random-effects model)": "Dias S, Welton NJ, Sutton AJ, Ades AE (2011). “NICE DSU technical support document 2: a generalised linear modelling framework for pairwise and network meta-analysis of randomised controlled trials.” National Institute for Health and Clinical Excellence. \n\nElliott WJ, Meyer PM (2007). “Incident diabetes in clinical trials of antihypertensive drugs: a network meta-analysis.” The Lancet, 369(9557), 201–207.",
-                "Franchini2012 (Bayesian fixed-effects model)": "Franchini AJ, Dias S, Ades AE, Jansen JP, Welton NJ (2012): Accounting for correlation in network meta-analysis with multi-arm trials. Research Synthesis Methods, 3, 142–60",
-                "Fretheim2012 (Frequentist random-effects model)": "Fretheim A, Odgaard-Jensen J, Brørs O, et al. (2012): Comparative effectiveness of antihypertensive medication for primary prevention of cardiovascular disease: Systematic review and multiple treatments meta-analysis. BMC Medicine, 10, 33." ,
-                "Gurusamy2011 (Bayesian fixed-effects model)": "Gurusamy KS, Pissanou T, Pikhart H, Vaughan J, Burroughs AK, Davidson BR (2011): Methods to decrease blood loss and transfusion requirements for liver transplantation. Cochrane Database of Systematic Reviews, CD009052",
-                "Rochwerg2014 (Frequentist fix-effects model)": "Rochwerg B, Alhazzani W, Sindi A, et al. (2014): Fluid resuscitation in sepsis: A systematic review and network meta-analysis. Annals of Internal Medicine, 161, 347–355."
+dataset_info = {"Baker2009 (Bayesian random-effects model)": 
+                ["**Outcome:** Number of COPD (chronic obstructive pulmonary disease) patients who experienced at least one exacerbation after receiving a treatment compared in the trials. COPD is a progressive lung disease characterized by persistent airflow limitation that makes breathing increasingly difficult.  \n"
+                "**Data source:** *Baker2009* dataset from the R package [`netmeta`](https://cran.r-project.org/package=netmeta)",
+                "Baker WL, Baker EL, Coleman CI (2009): Pharmacologic Treatments for Chronic Obstructive Pulmonary Disease: A Mixed-Treatment Comparison Meta-analysis. Pharmacotherapy: The Journal of Human Pharmacology and Drug Therapy, 29, 891–905"],
+                
+                "Boland2003 (Bayesian random-effects model)": 
+                ["**Outcome:** Number of deaths within 30-35 days among patients treated for acute myocardial infarction (AMI). An AMI is a heart attack occurs when a blood clot blocks a cornary artery, cutting off oxygen to part of the heart muscle and causing tissue damage or death.  \n"
+                 "**Data source:** *thrombolytic* dataset from the R package [`gemtc`](https://cran.r-project.org/package=gemtc). The package source code is available under the GPL-3 on [`Gitbub`](https://github.com/gertvv/gemtc)",
+                 "Lu and Ades (2006), Assessing Evidence Inconsistency in Mixed Treatment Comparisons, Journal of the American Statistical Society, 101(474):447-459. [doi:10.1198/016214505000001302]  \nBoland et al. (2003), Early thrombolysis for the treatment of acute myocardial infarction: a systematic review and economic evaluation, Health Technology Assessment 7(15):1-136. [doi:10.3310/hta7150]"],
+                
+                "Dogliotti2014 (Bayesian random-effects model)": 
+                ["**Outcome:**  Number of stroke in patients with non-valvular atrial fibrillation(AF) treated with one of the antithrombotic drugs. AF is an irregular heartbeat.  \n"
+                 "**Data source:** *Dogliotti2014* dataset from the R package [`netmeta`](https://cran.r-project.org/package=netmeta)",
+                 "Dogliotti A, Paolasso E, Giugliano RP (2014): Current and new oral antithrombotics in non-valvular atrial fibrillation: a network meta-analysis of 79 808 patients. Heart, 100, 396–405"],
+                
+                "Dong2013 (Frequentist Mantel-Haenszel method)": 
+                ["**Outcome:** Number of deaths in patients with COPD (chronic obstructive pulmonary disease) treated with inhaled medications. COPD is a progressive lung disease characterized by persistent airflow limitation that makes breathing increasingly difficult.  \n"
+                 "**Data source:** *Dong2012* dataset from the R package [`netmeta`](https://cran.r-project.org/package=netmeta)",
+                 "Dong Y-H, Lin H-H, Shau W-Y, Wu Y-C, Chang C-H, Lai M-S (2013): Comparative safety of inhaled medications in patients with chronic obstructive pulmonary disease: systematic review and mixed treatment comparison meta-analysis of randomised controlled trials. Thorax, 68, 48–56"],
+                
+                "Elliott2007 (Bayesian random-effects model)": 
+                ["**Outcome:** Number of new diabetes cases observed during follow-up among patients without diabetes at baseline and received an antihypertensive drug. An antihypertensive drug is used to treat high blood pressure.  \n"
+                 "**Data source:** Table A4 from [`NICE-DSU TSD 2`](https://www.ncbi.nlm.nih.gov/books/NBK310366/pdf/Bookshelf_NBK310366.pdf) and *diabetes* dataset from the R package [`BUGSnet`](https://bugsnetsoftware.github.io/)",
+                 'Dias S, Welton NJ, Sutton AJ, Ades AE (2011). "NICE DSU technical support document 2: a generalised linear modelling framework for pairwise and network meta-analysis of randomised controlled trials." National Institute for Health and Clinical Excellence.  \nElliott WJ, Meyer PM (2007). “Incident diabetes in clinical trials of antihypertensive drugs: a network meta-analysis.” The Lancet, 369(9557), 201–207.'],
+                
+                
+                "Franchini2012 (Bayesian fixed-effects model)": 
+                ["**Outcome:** Mean 'off-time' reduction in patients with Parkinson's disease receiving dopamine agonists as add-on therapy.  \n"
+                 "**Data source:** Table A8 from [`NICE-DSU TSD 2`](https://www.ncbi.nlm.nih.gov/books/NBK310366/pdf/Bookshelf_NBK310366.pdf) and *Franchini2012* dataset from the R package [`netmeta`](https://cran.r-project.org/package=netmeta)",
+                 "Dias S, Sutton AJ, Ades AE and Welton NJ (2013): Evidence synthesis for decision making 2: A generalized linear modeling framework for pairwise and network meta-analysis of randomized controlled trials. Medical Decision Making, 33, 607–17  \nFranchini AJ, Dias S, Ades AE, Jansen JP, Welton NJ (2012): Accounting for correlation in network meta-analysis with multi-arm trials. Research Synthesis Methods, 3, 142–60"],
+                
+                "Fretheim2012 (Frequentist random-effects model)": 
+                ["**Outcome:** Number of all-cause deaths during the trial follow-up period among participants who were assigned to an antihypertensive drug.  An antihypertensive drug is used to treat high blood pressure.  \n"
+                 "**Data source:** Record ID 501267 from the R package [`nmadb`](https://cran.r-project.org/web/packages/nmadb/index.html). The package source code is available on [`Github`](https://github.com/cran/nmadb)",
+                 "Fretheim A, Odgaard-Jensen J, Brørs O, et al. (2012): Comparative effectiveness of antihypertensive medication for primary prevention of cardiovascular disease: Systematic review and multiple treatments meta-analysis. BMC Medicine, 10, 33." ],
+                
+                "Gurusamy2011 (Bayesian fixed-effects model)": 
+                ["**Outcome:**  Number of deaths at 60 days after liver transplanation among participants who received interventions to decrease blood loss and transfusion requirements.  \n"
+                 "**Data source:** *Gurusamy2011* dataset from the R package [`netmeta`](https://cran.r-project.org/package=netmeta)",
+                 "Gurusamy KS, Pissanou T, Pikhart H, Vaughan J, Burroughs AK, Davidson BR (2011): Methods to decrease blood loss and transfusion requirements for liver transplantation. Cochrane Database of Systematic Reviews, CD009052"],
+
+                "Rochwerg2014 (Frequentist fix-effects model)": 
+                ["**Outcome:** Number of deaths among patients with severe sepsis or septic shock receiving  fluid resuscitation. Mortality was assessed at 90 days when available; otherwise, the longest available measure among 30-day, intensive care unit, or hospital mortality was used.  \n"
+                 "**Data source:** Record ID 480931 from the R package [`nmadb`](https://cran.r-project.org/web/packages/nmadb/index.html). The package source code is available on [`Github`](https://github.com/cran/nmadb)",
+                 "Rochwerg B, Alhazzani W, Sindi A, et al. (2014): Fluid resuscitation in sepsis: A systematic review and network meta-analysis. Annals of Internal Medicine, 161, 347–355."]
                 }
 
 featured = {"Boland2003 (Bayesian random-effects model)", "Elliott2007 (Bayesian random-effects model)"}
@@ -262,15 +298,19 @@ if page == "Data upload":
     mode = st.pills("",["Use an example dataset", "Upload my own treatment effects CSV file"], selection_mode="single", label_visibility = "collapsed")
 
     if mode == "Use an example dataset":
-        dataset_choice = st.radio("Available dataset:", options=list(dataset_info), 
+        st.markdown("###### Available dataset:")
+        dataset_choice = st.radio("", options=list(dataset_info), 
                                   format_func = lambda x: f"**{x}**" if x in featured else x, 
                                   index = 4,
-                                  horizontal=True)
+                                  horizontal=True,
+                                  label_visibility="collapsed")
         index = dataset_choice.find(" ")
         file_name = "Example_dataset/" + dataset_choice[:index] + "_treatment_effect.csv"
         default_dataset= pd.read_csv(file_name)
 
-        st.caption(dataset_info[dataset_choice])
+        #st.caption(dataset_info[dataset_choice])
+        st.markdown(dataset_info[dataset_choice][0])
+        st.caption(dataset_info[dataset_choice][1])
         st.download_button(label="Download sample dataset", data=default_dataset.to_csv(index=False), 
                            file_name="sample_treatment_effect.csv", mime="text/csv",
                            on_click="ignore")
@@ -287,19 +327,27 @@ if page == "Data upload":
             st.session_state["treatment_effect"] = data
             st.success("Dataset uploaded successfully.")
 
-    # matrices setup
-    small_values_good_choice = st.radio(
-        "Smaller treatment effects indicate better treatments?",
-        ("True", "False"),
-        help="Choose 'True' when smaller treatment effects are more desirable, otherwise choose 'False'."
-    )
-    
-    st.session_state["small_values_good"] = (small_values_good_choice == "True")
 
     if st.session_state["treatment_effect"] is not None:
         st.dataframe(st.session_state["treatment_effect"], use_container_width=True)
 
     if st.session_state["treatment_effect"] is not None:
+        
+        st.divider()
+
+        st.subheader("Treatment hierarchies based on different ranking metrics:")
+
+        # matrices setup
+        small_values_good_choice = st.radio(
+            "Smaller treatment effects indicate better treatments?",
+            ("True", "False"),
+            help="Choose 'True' when smaller treatment effects are more desirable, otherwise choose 'False'."
+        )
+        
+        st.session_state["small_values_good"] = (small_values_good_choice == "True")
+
+
+
         treatment_effect = st.session_state["treatment_effect"].copy()
         small_values_good = st.session_state["small_values_good"]
 
@@ -330,7 +378,7 @@ if page == "Data upload":
                                         "EV": theta_hat_rank_order[::-1], 
                                         "SUCRA": posterior_mean_rank_order[::-1]})
             
-        st.markdown("##### Treatment hierarchies based on different ranking metrics:")
+        #st.markdown("##### Treatment hierarchies based on different ranking metrics:")
         st.table(all_rank)
 
         st.session_state["rank_matrix"] = rank_matrix
